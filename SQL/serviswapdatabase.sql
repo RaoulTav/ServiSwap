@@ -47,7 +47,7 @@ CREATE TABLE RequestedServices(
     state INT NOT NULL,
     requesterId INT NOT NULL,
     serviceId INT NOT NULL,
-    CHECK (state BETWEEN 1 AND 4),
+    CHECK (state BETWEEN 1 AND 5),
     FOREIGN KEY (requesterId) REFERENCES People(personId),
     FOREIGN KEY (serviceId) REFERENCES Services(serviceId)
 );

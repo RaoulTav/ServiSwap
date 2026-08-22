@@ -9,5 +9,8 @@ public enum ErrorCode
     InvalidCity,
     InvalidUsernameFormat,
     InvalidEmailFormat,
-    InvalidPasswordFormat
+    InvalidPasswordFormat,
+    InvalidServiceName,
+    InvalidServiceDescription,
+    InvalidStateTransition
 }
