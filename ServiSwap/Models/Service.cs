@@ -1,14 +1,18 @@
+using System.Runtime.CompilerServices;
 using ServiSwap.Exceptions;
 
 namespace ServiSwap.Models;
 
 public class Service
 {
-    public Service(string serviceName, string serviceDescription, DateOnly dateOfPublication)
+    public Service(string serviceName, string serviceDescription, DateOnly dateOfPublication, Category category, Person provider)
     {
         ServiceName = serviceName;
         ServiceDescription = serviceDescription;
         DateOfPublication = dateOfPublication;
+        Category = category;
+        Provider = provider;
+        provider.AddService(this);
     }
 
     public int ServiceId
@@ -51,4 +55,21 @@ public class Service
     }
 
     public DateOnly DateOfPublication { get; set; }
+
+    public Category Category { get; private set; }
+
+    public Person Provider { get; private set { ArgumentNullException.ThrowIfNull(value); field = value; } }
+
+    public bool Equals(Service? otherService)
+    {
+        if(otherService is null) return false;
+
+        if(ServiceId == 0 || otherService.ServiceId == 0) return ReferenceEquals(this, otherService);
+
+        return ServiceId == otherService.ServiceId;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as Service);
+
+    public override int GetHashCode() => ServiceId == 0 ? RuntimeHelpers.GetHashCode(this) : ServiceId.GetHashCode();
 }

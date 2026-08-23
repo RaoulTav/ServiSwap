@@ -18,6 +18,7 @@ public partial class Person
         City = city;
         Latitude = latitude; // TODO: implement GeoCodage in CreateUser() method in PersonService later.
         Longitude = longitude; // TODO: implement GeoCodage in CreateUser() method in PersonService later.
+        services = [];
     }
 
     public int PersonId
@@ -148,6 +149,21 @@ public partial class Person
     public double Longitude { get; private set; }
 
     public int CreditHours { get; set { ArgumentOutOfRangeException.ThrowIfNegative(value); field = value; } }
+
+    private readonly List<Service> services;
+
+    public IReadOnlyList<Service> Services => services;
+
+    public void AddService(Service service)
+    {
+        ArgumentNullException.ThrowIfNull(service);
+
+        if(service.Provider != this) throw new TechnicalException("Service provider does not match this person.");
+
+        if(services.Contains(service)) throw new TechnicalException("Service is already associated with this person.");
+
+        services.Add(service);
+    }
 
     [GeneratedRegex(@"^[a-zA-Z0-9]+$")]
     private static partial Regex UsernameRegex();
