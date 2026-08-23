@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using ServiSwap.Exceptions;
 
@@ -19,6 +20,8 @@ public partial class Person
         Latitude = latitude; // TODO: implement GeoCodage in CreateUser() method in PersonService later.
         Longitude = longitude; // TODO: implement GeoCodage in CreateUser() method in PersonService later.
         services = [];
+        servicesProvider = [];
+        servicesRequester = [];
     }
 
     public int PersonId
@@ -164,6 +167,49 @@ public partial class Person
 
         services.Add(service);
     }
+
+    private readonly List<RequestedService> servicesProvider;
+
+    public IReadOnlyList<RequestedService> ServicesProvider =>  servicesProvider;
+
+    public void AddRequestedServiceAsProvider(RequestedService requestedService)
+    {
+        ArgumentNullException.ThrowIfNull(requestedService);
+
+        if(requestedService.Service.Provider != this) throw new TechnicalException("Requested service provider does not match this person.");
+
+        if(servicesProvider.Contains(requestedService)) throw new TechnicalException("Requested Service is already associated with this person.");
+
+        servicesProvider.Add(requestedService);
+    }
+
+    private readonly List<RequestedService> servicesRequester;
+
+    public IReadOnlyList<RequestedService> ServicesRequester =>  servicesRequester;
+
+    public void AddRequestedServiceAsRequester(RequestedService requestedService)
+    {
+        ArgumentNullException.ThrowIfNull(requestedService);
+
+        if(requestedService.Requester != this) throw new TechnicalException("Requested service requester does not match this person.");
+
+        if(servicesRequester.Contains(requestedService)) throw new TechnicalException("Requested Service is already associated with this person.");
+
+        servicesRequester.Add(requestedService);
+    }
+
+    public bool Equals(Person? otherPerson)
+    {
+        if(otherPerson is null) return false;
+
+        if(PersonId == 0 || otherPerson.PersonId == 0) return ReferenceEquals(this, otherPerson);
+
+        return PersonId == otherPerson.PersonId;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as Person);
+
+    public override int GetHashCode() => PersonId == 0 ? RuntimeHelpers.GetHashCode(this) : PersonId.GetHashCode();
 
     [GeneratedRegex(@"^[a-zA-Z0-9]+$")]
     private static partial Regex UsernameRegex();

@@ -12,5 +12,6 @@ public enum ErrorCode
     InvalidPasswordFormat,
     InvalidServiceName,
     InvalidServiceDescription,
-    InvalidStateTransition
+    InvalidStateTransition,
+    RequesterCannotBeProvider
 }

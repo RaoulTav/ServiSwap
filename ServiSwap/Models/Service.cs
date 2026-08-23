@@ -12,7 +12,8 @@ public class Service
         DateOfPublication = dateOfPublication;
         Category = category;
         Provider = provider;
-        provider.AddService(this);
+        Provider.AddService(this);
+        requestedServices = [];
     }
 
     public int ServiceId
@@ -59,6 +60,21 @@ public class Service
     public Category Category { get; private set; }
 
     public Person Provider { get; private set { ArgumentNullException.ThrowIfNull(value); field = value; } }
+
+    private readonly List<RequestedService> requestedServices;
+
+    public IReadOnlyList<RequestedService> RequestedServices => requestedServices;
+
+    public void AddRequestedService(RequestedService requestedService)
+    {
+        ArgumentNullException.ThrowIfNull(requestedService);
+
+        if(requestedService.Service != this) throw new TechnicalException("Requested service does not reference this service.");
+
+        if(requestedServices.Contains(requestedService)) throw new TechnicalException("Requested service is already associated with this service.");
+
+        requestedServices.Add(requestedService);
+    }
 
     public bool Equals(Service? otherService)
     {
