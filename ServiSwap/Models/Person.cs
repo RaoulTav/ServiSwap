@@ -51,9 +51,7 @@ public partial class Person
 
             if(!UsernameRegex().IsMatch(value))
             {
-                throw new BusinessException(
-                    ErrorCode.InvalidUsernameFormat,
-                    "Person username should contain only letters and numbers.");
+                throw new BusinessException(ErrorCode.InvalidUsernameFormat, "Person username should contain only letters and numbers.");
             }
 
             field = value;
@@ -77,9 +75,37 @@ public partial class Person
         }
     }
 
-    public string LastName { get; set { ArgumentException.ThrowIfNullOrWhiteSpace(value); field = value; } }
+    public string LastName 
+    { 
+        get; 
+        set 
+        { 
+            ArgumentException.ThrowIfNullOrWhiteSpace(value); 
 
-    public string FirstName { get; set { ArgumentException.ThrowIfNullOrWhiteSpace(value); field = value; } }
+            if(value.Length < 1 || value.Length > 50) 
+            {
+                throw new BusinessException(ErrorCode.InvalidLastName, "Person lastname should be between 1 and 50 characters.");
+            }
+
+            field = value; 
+        } 
+    }
+
+    public string FirstName 
+    { 
+        get; 
+        set 
+        { 
+            ArgumentException.ThrowIfNullOrWhiteSpace(value); 
+
+            if(value.Length < 1 || value.Length > 50) 
+            {
+                throw new BusinessException(ErrorCode.InvalidFirstName, "Person firstname should be between 1 and 50 characters.");
+            }
+
+            field = value; 
+        } 
+    }
 
     public string Email
     {

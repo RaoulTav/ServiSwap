@@ -13,7 +13,10 @@ public class RequestedService
         Service = service;
         Provider = service.Provider;
 
-        if(Requester.Equals(Provider)) throw new BusinessException(ErrorCode.RequesterCannotBeProvider, "A person cannot request their own service.");
+        if(Requester.Equals(Provider)) 
+        {
+            throw new BusinessException(ErrorCode.RequesterCannotBeProvider, "A person cannot request their own service.");
+        }
         
         Requester.AddRequestedServiceAsRequester(this);
         Service.AddRequestedService(this);
@@ -49,7 +52,7 @@ public class RequestedService
             _ => false
         };
 
-        if (!validTransition) throw new BusinessException(ErrorCode.InvalidStateTransition, $"Cannot change state from {State} to {newState}.");
+        if(!validTransition) throw new BusinessException(ErrorCode.InvalidStateTransition, $"Cannot change state from {State} to {newState}.");
 
         State = newState;
     }

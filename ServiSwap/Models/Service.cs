@@ -49,7 +49,10 @@ public class Service
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-            if(value.Length > 1000) throw new BusinessException(ErrorCode.InvalidServiceDescription, "Service description cannot exceed 1000 characters.");
+            if(value.Length > 1000) 
+            {
+                throw new BusinessException(ErrorCode.InvalidServiceDescription, "Service description cannot exceed 1000 characters.");
+            }
 
             field = value;
         }

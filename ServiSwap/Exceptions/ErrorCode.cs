@@ -13,5 +13,7 @@ public enum ErrorCode
     InvalidServiceName,
     InvalidServiceDescription,
     InvalidStateTransition,
-    RequesterCannotBeProvider
+    RequesterCannotBeProvider,
+    InvalidLastName,
+    InvalidFirstName
 }
