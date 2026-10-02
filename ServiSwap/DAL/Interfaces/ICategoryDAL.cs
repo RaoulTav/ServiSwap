@@ -6,6 +6,6 @@ namespace ServiSwap.DAL.Interfaces
     {
         public List<Category> FindAll();
 
-        public Category FindById(int categoryId);
+        public Category? FindById(int categoryId);
     }
 }
