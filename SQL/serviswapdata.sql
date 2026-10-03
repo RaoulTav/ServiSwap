@@ -22,16 +22,16 @@ VALUES
 
 INSERT INTO People (username, password, lastName, firstName, email, creditHours, latitude, longitude, addressId)
 VALUES
-    ('NoxCharleroi', 'password123', 'Dupont', 'Thomas', 'thomas.dupont@example.com', 10, 50.4120, 4.4440, 1),
-    ('AliceBruxelles', 'password123', 'Martin', 'Alice', 'alice.martin@example.com', 10, 50.8260, 4.3659, 2),
-    ('MarcNamur01', 'password123', 'Lambert', 'Marc', 'marc.lambert@example.com', 10, 50.4622, 4.8675, 3),
-    ('JulieLiege01', 'password123', 'Leclercq', 'Julie', 'julie.leclercq@example.com', 10, 50.6426, 5.574864, 4),
-    ('PaulMons01', 'password123', 'Simon', 'Paul', 'paul.simon@example.com', 10, 50.4540, 3.9520, 5),
-    ('EmmaTournai', 'password123', 'Moreau', 'Emma', 'emma.moreau@example.com', 10, 50.6050, 3.3880, 6),
-    ('LucasLouviere', 'password123', 'Robert', 'Lucas', 'lucas.robert@example.com', 10, 50.4780, 4.1870, 7),
-    ('SarahNivelles', 'password123', 'Bernard', 'Sarah', 'sarah.bernard@example.com', 10, 50.5980, 4.3280, 8),
-    ('HugoWavre01', 'password123', 'Gérard', 'Hugo', 'hugo.gerard@example.com', 10, 50.7160, 4.6100, 9),
-    ('LauraDinant', 'password123', 'Michel', 'Laura', 'laura.michel@example.com', 10, 50.2600, 4.9120, 10);
+    ('NoxCharleroi', 'P@ssword123', 'Dupont', 'Thomas', 'thomas.dupont@example.com', 10, 50.4120, 4.4440, 1),
+    ('AliceBruxelles', 'P@ssword123', 'Martin', 'Alice', 'alice.martin@example.com', 10, 50.8260, 4.3659, 2),
+    ('MarcNamur01', 'P@ssword123', 'Lambert', 'Marc', 'marc.lambert@example.com', 10, 50.4622, 4.8675, 3),
+    ('JulieLiege01', 'P@ssword123', 'Leclercq', 'Julie', 'julie.leclercq@example.com', 10, 50.6426, 5.574864, 4),
+    ('PaulMons01', 'P@ssword123', 'Simon', 'Paul', 'paul.simon@example.com', 10, 50.4540, 3.9520, 5),
+    ('EmmaTournai', 'P@ssword123', 'Moreau', 'Emma', 'emma.moreau@example.com', 10, 50.6050, 3.3880, 6),
+    ('LucasLouviere', 'P@ssword123', 'Robert', 'Lucas', 'lucas.robert@example.com', 10, 50.4780, 4.1870, 7),
+    ('SarahNivelles', 'P@ssword123', 'Bernard', 'Sarah', 'sarah.bernard@example.com', 10, 50.5980, 4.3280, 8),
+    ('HugoWavre01', 'P@ssword123', 'Gérard', 'Hugo', 'hugo.gerard@example.com', 10, 50.7160, 4.6100, 9),
+    ('LauraDinant', 'P@ssword123', 'Michel', 'Laura', 'laura.michel@example.com', 10, 50.2600, 4.9120, 10);
 
 INSERT INTO Services (serviceName, serviceDescription, dateOfPublication, categoryId, providerId)
 VALUES
