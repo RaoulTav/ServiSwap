@@ -4,12 +4,12 @@ namespace ServiSwap.DAL.Interfaces
 {
     public interface IServiceDAL
     {
-        public bool CreateService(Service service);
+        public void CreateService(Service service);
 
         public List<Service> FindAll();
 
-        public Service FindById(int serviceId);
+        public Service? FindById(int serviceId);
 
-        public List<Service> SearchByCategoryAndOrDistance(int categoryId, double distance, double latitude, double longitude);
+        public List<Service> SearchByCategoryAndOrDistance(double latitude, double longitude, int? categoryId = null, double? distance = null);
     }
 }
