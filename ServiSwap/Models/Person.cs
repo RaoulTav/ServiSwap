@@ -6,7 +6,7 @@ namespace ServiSwap.Models;
 
 public partial class Person
 {
-    public Person(string username, string password, string lastName, string firstName, string email, string streetNumber, 
+    public Person(string username, string password, string lastName, string firstName, string email, int creditHours, string streetNumber, 
         string streetName, string city, double latitude = 1f, double longitude = 1f)
     {
         Username = username;
@@ -14,6 +14,7 @@ public partial class Person
         LastName = lastName;
         FirstName = firstName;
         Email = email;
+        CreditHours = creditHours;
         StreetNumber = streetNumber;
         StreetName = streetName;
         City = city;
