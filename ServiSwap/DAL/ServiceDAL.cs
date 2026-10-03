@@ -15,7 +15,7 @@ namespace ServiSwap.DAL
             connection.Open();
 
             string query = """
-                INSERT INTO (serviceName, serviceDescription, dateOfPublication, categoryId, providerId) 
+                INSERT INTO Services (serviceName, serviceDescription, dateOfPublication, categoryId, providerId) 
                 VALUES (@serviceName, @serviceDescription, @dateOfPublication, @categoryId, @providerId)
             """;
 
