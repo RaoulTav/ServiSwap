@@ -15,5 +15,6 @@ public enum ErrorCode
     InvalidStateTransition,
     RequesterCannotBeProvider,
     InvalidLastName,
-    InvalidFirstName
+    InvalidFirstName,
+    NotEnoughCredits
 }

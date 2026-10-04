@@ -225,6 +225,8 @@ public partial class Person
         servicesRequester.Add(requestedService);
     }
 
+    public bool HasEnoughCredits(int hours = 1) => CreditHours >= hours;
+
     public bool Equals(Person? otherPerson)
     {
         if(otherPerson is null) return false;
