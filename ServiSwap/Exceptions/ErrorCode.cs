@@ -16,5 +16,6 @@ public enum ErrorCode
     RequesterCannotBeProvider,
     InvalidLastName,
     InvalidFirstName,
-    NotEnoughCredits
+    NotEnoughCredits,
+    ServiceAlreadyRequested
 }

@@ -30,6 +30,13 @@ public class PersonService(IPersonDAL personDAL, IServiceDAL serviceDAL, IReques
             throw new BusinessException(ErrorCode.RequesterCannotBeProvider, "A person cannot request their own service.");
         }
 
+        requestedServiceDAL.FindAllByRequester(requester);
+
+        if(requester.ServicesRequester.Any(rs => rs.Service.Equals(service)))
+        {
+            throw new BusinessException(ErrorCode.ServiceAlreadyRequested, "The service has already been requested by the person.");
+        }
+
         RequestedService requestedService = new(
             DateOnly.FromDateTime(DateTime.Now), 
             RequestedServiceState.Pending,

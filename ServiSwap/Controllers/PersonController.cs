@@ -9,7 +9,7 @@ public class PersonController(PersonService personService) : Controller
 
     public IActionResult RequestService(int serviceId)
     {
-        personService.RequestService(1, 5); // TODO: implement session and service view to update mockup data
+        personService.RequestService(1, 3); // TODO: implement session and service view to update mockup data
 
         return View();
     }
