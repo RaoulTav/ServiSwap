@@ -13,7 +13,7 @@ public class RequestedService
         Service = service;
         Provider = service.Provider;
 
-        if(Requester.Equals(Provider)) 
+        if (Requester.Equals(Provider)) 
         {
             throw new BusinessException(ErrorCode.RequesterCannotBeProvider, "A person cannot request their own service.");
         }
@@ -28,7 +28,7 @@ public class RequestedService
         get;
         set
         {
-            if(field != 0) throw new TechnicalException("RequestedService ID is already set.");
+            if (field != 0) throw new TechnicalException("RequestedService ID is already set.");
 
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
 
@@ -52,7 +52,10 @@ public class RequestedService
             _ => false
         };
 
-        if(!validTransition) throw new BusinessException(ErrorCode.InvalidStateTransition, $"Cannot change state from {State} to {newState}.");
+        if (!validTransition)
+        {
+            throw new BusinessException(ErrorCode.InvalidStateTransition, $"Cannot change state from {State} to {newState}.");
+        } 
 
         State = newState;
     }
@@ -65,9 +68,12 @@ public class RequestedService
 
     public bool Equals(RequestedService? otherRequestedService)
     {
-        if(otherRequestedService is null) return false;
+        if (otherRequestedService is null) return false;
 
-        if(RequestedServiceId == 0 || otherRequestedService.RequestedServiceId == 0) return ReferenceEquals(this, otherRequestedService);
+        if (RequestedServiceId == 0 || otherRequestedService.RequestedServiceId == 0)
+        {
+            return ReferenceEquals(this, otherRequestedService);
+        } 
 
         return RequestedServiceId == otherRequestedService.RequestedServiceId;
     }

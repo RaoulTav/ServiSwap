@@ -69,7 +69,7 @@ namespace ServiSwap.DAL
 
             MySqlDataReader reader = command.ExecuteReader();
 
-            if(reader.Read())
+            if (reader.Read())
             {
                 Category category = new(reader.GetInt32("categoryId"), reader.GetString("categoryName"));
 
@@ -149,11 +149,11 @@ namespace ServiSwap.DAL
 
             using MySqlDataReader reader = command.ExecuteReader();
 
-            while(reader.Read())
+            while (reader.Read())
             {
                 int categoryId = reader.GetInt32("categoryId");
 
-                if(!categories.TryGetValue(categoryId, out Category? category))
+                if (!categories.TryGetValue(categoryId, out Category? category))
                 {
                     category = new(categoryId, reader.GetString("categoryName"));
 
@@ -162,7 +162,7 @@ namespace ServiSwap.DAL
 
                 int personId = reader.GetInt32("pId");
 
-                if(!people.TryGetValue(personId, out Person? provider))
+                if (!people.TryGetValue(personId, out Person? provider))
                 {
                     provider = new(
                         reader.GetString("pUsername"),

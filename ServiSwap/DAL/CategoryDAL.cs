@@ -25,7 +25,7 @@ namespace ServiSwap.DAL
 
             using MySqlDataReader reader = command.ExecuteReader();
 
-            while(reader.Read())
+            while (reader.Read())
             {
                 Category category = new(
                     reader.GetInt32("categoryId"),
@@ -58,7 +58,7 @@ namespace ServiSwap.DAL
 
             using MySqlDataReader reader = command.ExecuteReader();
 
-            if(reader.Read())
+            if (reader.Read())
             {
                 category = new(
                     categoryId,

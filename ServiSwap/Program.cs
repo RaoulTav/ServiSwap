@@ -19,10 +19,15 @@ builder.Services.AddSingleton<PersonService>();
 
 WebApplication app = builder.Build();
 
+if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
+
+
 if (!app.Environment.IsDevelopment()) { app.UseHsts(); }
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+// TODO : configure session and call app.UseSession()
 
 app.UseAuthorization();
 

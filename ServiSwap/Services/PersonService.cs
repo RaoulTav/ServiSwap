@@ -12,38 +12,33 @@ public class PersonService(IPersonDAL personDAL, IServiceDAL serviceDAL, IReques
 
     public void RequestService(int personId, int serviceId)
     {
-        Person? requester = personDAL.FindById(personId);
-
-        ArgumentNullException.ThrowIfNull(requester);
-
-        if(!requester.HasEnoughCredits())
+        Person requester = personDAL.FindById(personId) ?? throw new EntityNotFoundException("Requester", personId);
+    
+        Service service = serviceDAL.FindById(serviceId) ?? throw new EntityNotFoundException("Service", serviceId);
+    
+        if (!requester.HasEnoughCredits())
         {
             throw new BusinessException(ErrorCode.NotEnoughCredits, "Requester doesn't have enough credits to request the service.");
         }
-
-        Service? service = serviceDAL.FindById(serviceId);
-
-        ArgumentNullException.ThrowIfNull(service);
-
-        if(requester.Equals(service.Provider))
+    
+        if (requester.Equals(service.Provider))
         {
             throw new BusinessException(ErrorCode.RequesterCannotBeProvider, "A person cannot request their own service.");
         }
-
+    
         requestedServiceDAL.FindAllByRequester(requester);
 
-        if(requester.ServicesRequester.Any(rs => rs.Service.Equals(service)))
+        if (requester.ServicesRequester.Any(rs => rs.Service.Equals(service)))
         {
             throw new BusinessException(ErrorCode.ServiceAlreadyRequested, "The service has already been requested by the person.");
         }
-
+    
         RequestedService requestedService = new(
-            DateOnly.FromDateTime(DateTime.Now), 
+            DateOnly.FromDateTime(DateTime.Now),
             RequestedServiceState.Pending,
             requester,
-            service
-        );
-
+            service);
+    
         requestedServiceDAL.CreateRequestedService(requestedService);
     }
 }

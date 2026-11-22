@@ -30,7 +30,7 @@ public partial class Person
         get;
         set
         {
-            if(field != 0) throw new TechnicalException("Person ID is already set.");
+            if (field != 0) throw new TechnicalException("Person ID is already set.");
 
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
 
@@ -45,12 +45,12 @@ public partial class Person
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-            if(value.Length < 7 || value.Length > 20) 
+            if (value.Length < 7 || value.Length > 20) 
             {
                 throw new BusinessException(ErrorCode.InvalidUsername, "Person username should be between 7 and 20 characters.");
             }
 
-            if(!UsernameRegex().IsMatch(value))
+            if (!UsernameRegex().IsMatch(value))
             {
                 throw new BusinessException(ErrorCode.InvalidUsernameFormat, "Person username should contain only letters and numbers.");
             }
@@ -66,7 +66,7 @@ public partial class Person
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-            if(!UppercaseRegex().IsMatch(value) || !DigitRegex().IsMatch(value) || !SpecialCharacterRegex().IsMatch(value))
+            if (!UppercaseRegex().IsMatch(value) || !DigitRegex().IsMatch(value) || !SpecialCharacterRegex().IsMatch(value))
             {
                 throw new BusinessException(ErrorCode.InvalidPasswordFormat,
                     "Password should contain at least one uppercase letter, one digit and one special character.");
@@ -83,7 +83,7 @@ public partial class Person
         { 
             ArgumentException.ThrowIfNullOrWhiteSpace(value); 
 
-            if(value.Length < 1 || value.Length > 50) 
+            if (value.Length < 1 || value.Length > 50) 
             {
                 throw new BusinessException(ErrorCode.InvalidLastName, "Person lastname should be between 1 and 50 characters.");
             }
@@ -99,7 +99,7 @@ public partial class Person
         { 
             ArgumentException.ThrowIfNullOrWhiteSpace(value); 
 
-            if(value.Length < 1 || value.Length > 50) 
+            if (value.Length < 1 || value.Length > 50) 
             {
                 throw new BusinessException(ErrorCode.InvalidFirstName, "Person firstname should be between 1 and 50 characters.");
             }
@@ -115,12 +115,15 @@ public partial class Person
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-            if(value.Length < 7 || value.Length > 50) 
+            if (value.Length < 7 || value.Length > 50) 
             {
                 throw new BusinessException(ErrorCode.InvalidEmail, "Person email should be between 7 and 50 characters.");
             }
 
-            if(!EmailRegex().IsMatch(value)) throw new BusinessException(ErrorCode.InvalidEmailFormat,"Person email has an invalid format.");
+            if (!EmailRegex().IsMatch(value)) 
+            {
+                throw new BusinessException(ErrorCode.InvalidEmailFormat, "Person email has an invalid format.");
+            }
 
             field = value;
         }
@@ -133,7 +136,7 @@ public partial class Person
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-            if(value.Length < 1 || value.Length > 10) 
+            if (value.Length < 1 || value.Length > 10) 
             {
                 throw new BusinessException(ErrorCode.InvalidStreetNumber, "Street number should be between 1 and 10 characters.");
             }
@@ -149,7 +152,7 @@ public partial class Person
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-            if(value.Length < 1 || value.Length > 50)
+            if (value.Length < 1 || value.Length > 50)
             {
                 throw new BusinessException(ErrorCode.InvalidStreetName, "Street name should be between 1 and 50 characters.");
             } 
@@ -165,7 +168,7 @@ public partial class Person
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-            if(value.Length < 1 || value.Length > 50)
+            if (value.Length < 1 || value.Length > 50)
             {
                 throw new BusinessException(ErrorCode.InvalidCity, "City name should be between 1 and 50 characters.");
             } 
@@ -188,9 +191,9 @@ public partial class Person
     {
         ArgumentNullException.ThrowIfNull(service);
 
-        if(service.Provider != this) throw new TechnicalException("Service provider does not match this person.");
+        if (service.Provider != this) throw new TechnicalException("Service provider does not match this person.");
 
-        if(services.Contains(service)) throw new TechnicalException("Service is already associated with this person.");
+        if (services.Contains(service)) throw new TechnicalException("Service is already associated with this person.");
 
         services.Add(service);
     }
@@ -203,9 +206,15 @@ public partial class Person
     {
         ArgumentNullException.ThrowIfNull(requestedService);
 
-        if(requestedService.Service.Provider != this) throw new TechnicalException("Requested service provider does not match this person.");
+        if (requestedService.Service.Provider != this)
+        {
+            throw new TechnicalException("Requested service provider does not match this person.");
+        } 
 
-        if(servicesProvider.Contains(requestedService)) throw new TechnicalException("Requested Service is already associated with this person.");
+        if (servicesProvider.Contains(requestedService))
+        {
+            throw new TechnicalException("Requested Service is already associated with this person.");
+        } 
 
         servicesProvider.Add(requestedService);
     }
@@ -218,9 +227,15 @@ public partial class Person
     {
         ArgumentNullException.ThrowIfNull(requestedService);
 
-        if(requestedService.Requester != this) throw new TechnicalException("Requested service requester does not match this person.");
+        if (requestedService.Requester != this)
+        {
+            throw new TechnicalException("Requested service requester does not match this person.");
+        } 
 
-        if(servicesRequester.Contains(requestedService)) throw new TechnicalException("Requested Service is already associated with this person.");
+        if (servicesRequester.Contains(requestedService))
+        {
+            throw new TechnicalException("Requested Service is already associated with this person.");
+        } 
 
         servicesRequester.Add(requestedService);
     }
@@ -229,9 +244,9 @@ public partial class Person
 
     public bool Equals(Person? otherPerson)
     {
-        if(otherPerson is null) return false;
+        if (otherPerson is null) return false;
 
-        if(PersonId == 0 || otherPerson.PersonId == 0) return ReferenceEquals(this, otherPerson);
+        if (PersonId == 0 || otherPerson.PersonId == 0) return ReferenceEquals(this, otherPerson);
 
         return PersonId == otherPerson.PersonId;
     }
