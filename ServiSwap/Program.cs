@@ -16,6 +16,7 @@ builder.Services.AddSingleton<IServiceDAL>(c => new ServiceDAL(connectionString)
 builder.Services.AddSingleton<IRequestedServiceDAL>(c => new RequestedServiceDAL(connectionString));
 
 builder.Services.AddSingleton<PersonService>();
+builder.Services.AddSingleton<HomePageService>();
 
 WebApplication app = builder.Build();
 
