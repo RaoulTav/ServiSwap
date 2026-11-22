@@ -1,4 +1,4 @@
-﻿@model ServiSwap.ViewModels.SearchServiceViewModel
+﻿@model ServiSwap.ViewModels.HomePageViewModel
 
 @{
     ViewData["Title"] = "Accueil";
@@ -18,13 +18,10 @@
 						<div class="category-dropdown">
 							<select class="category-menu" name="categoryId">
 								<option value="" selected disabled>-- Sélectionnez une catégorie --</option>
-                                @if (Model is not null)
-                                {
-                                    @foreach (Category c in Model.Categories)
-                                    {
-                                        <option value="@c.CategoryId">@c.CategoryName</option>
-                                    }
-                                }
+                                @foreach (Category c in Model.Categories)
+								{
+									<option value="@c.CategoryId">@c.CategoryName</option>
+								}
 							</select>
 						</div>
 					</div>

@@ -1,11 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
+using ServiSwap.Services;
+using ServiSwap.ViewModels;
 
 namespace ServiSwap.Controllers;
 
-public class HomeController : Controller
+public class HomeController(HomePageService homePageService) : Controller
 {
+    private readonly HomePageService homePageService = homePageService;
+
     public IActionResult Index()
     {
-        return View(null);
+        HomePageData data = homePageService.GetHomePageData();
+
+        HomePageViewModel homePageViewModel = new()
+        {
+            Categories = data.Categories,
+            Services = data.Services
+        };
+
+        return View(homePageViewModel);
     }
 }
