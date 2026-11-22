@@ -56,11 +56,11 @@ namespace ServiSwap.DAL
 
             using MySqlDataReader reader = command.ExecuteReader();
 
-            while(reader.Read())
+            while (reader.Read())
             {
                 int categoryId = reader.GetInt32("categoryId");
 
-                if(!categories.TryGetValue(categoryId, out Category? category))
+                if (!categories.TryGetValue(categoryId, out Category? category))
                 {
                     category = new(categoryId, reader.GetString("categoryName"));
 
@@ -69,7 +69,7 @@ namespace ServiSwap.DAL
 
                 int personId = reader.GetInt32("personId");
 
-                if(!people.TryGetValue(personId, out Person? provider))
+                if (!people.TryGetValue(personId, out Person? provider))
                 {
                     provider = new(
                         reader.GetString("username"),
@@ -127,7 +127,7 @@ namespace ServiSwap.DAL
 
             using MySqlDataReader reader = command.ExecuteReader();
 
-            if(reader.Read())
+            if (reader.Read())
             {
                 Category category = new(reader.GetInt32("categoryId"), reader.GetString("categoryName"));
 
@@ -177,12 +177,12 @@ namespace ServiSwap.DAL
                     INNER JOIN People p INNER JOIN Addresses a ON p.addressId = a.addressId ON s.providerId = p.personId 
             """;
 
-            if(categoryId.HasValue)
+            if (categoryId.HasValue)
             {
                 query += " WHERE c.categoryId = @categoryId ";
             }
 
-            if(distance.HasValue)
+            if (distance.HasValue)
             {
                 if(categoryId.HasValue)
                 {
@@ -201,12 +201,12 @@ namespace ServiSwap.DAL
 
             using MySqlCommand command = new(query, connection);
 
-            if(categoryId.HasValue)
+            if (categoryId.HasValue)
             {
                 command.Parameters.AddWithValue("@categoryId", categoryId);
             }
 
-            if(distance.HasValue)
+            if (distance.HasValue)
             {
                 command.Parameters.AddWithValue("@latitude", latitude);
                 command.Parameters.AddWithValue("@longitude", longitude);
@@ -215,11 +215,11 @@ namespace ServiSwap.DAL
 
             using MySqlDataReader reader = command.ExecuteReader();
 
-            while(reader.Read())
+            while (reader.Read())
             {
                 int catId = reader.GetInt32("categoryId");
 
-                if(!categories.TryGetValue(catId, out Category? category))
+                if (!categories.TryGetValue(catId, out Category? category))
                 {
                     category = new(catId, reader.GetString("categoryName"));
 
@@ -228,7 +228,7 @@ namespace ServiSwap.DAL
 
                 int personId = reader.GetInt32("personId");
 
-                if(!people.TryGetValue(personId, out Person? provider))
+                if (!people.TryGetValue(personId, out Person? provider))
                 {
                     provider = new(
                         reader.GetString("username"),

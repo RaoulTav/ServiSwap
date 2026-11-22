@@ -1,0 +1,44 @@
+using ServiSwap.DAL.Interfaces;
+using ServiSwap.Exceptions;
+using ServiSwap.Models;
+
+namespace ServiSwap.Services;
+
+public class PersonService(IPersonDAL personDAL, IServiceDAL serviceDAL, IRequestedServiceDAL requestedServiceDAL)
+{
+    private readonly IPersonDAL personDAL = personDAL;
+    private readonly IServiceDAL serviceDAL = serviceDAL;
+    private readonly IRequestedServiceDAL requestedServiceDAL = requestedServiceDAL;
+
+    public void RequestService(int personId, int serviceId)
+    {
+        Person requester = personDAL.FindById(personId) ?? throw new EntityNotFoundException("Requester", personId);
+    
+        Service service = serviceDAL.FindById(serviceId) ?? throw new EntityNotFoundException("Service", serviceId);
+    
+        if (!requester.HasEnoughCredits())
+        {
+            throw new BusinessException(ErrorCode.NotEnoughCredits, "Requester doesn't have enough credits to request the service.");
+        }
+    
+        if (requester.Equals(service.Provider))
+        {
+            throw new BusinessException(ErrorCode.RequesterCannotBeProvider, "A person cannot request their own service.");
+        }
+    
+        requestedServiceDAL.FindAllByRequester(requester);
+
+        if (requester.ServicesRequester.Any(rs => rs.Service.Equals(service)))
+        {
+            throw new BusinessException(ErrorCode.ServiceAlreadyRequested, "The service has already been requested by the person.");
+        }
+    
+        RequestedService requestedService = new(
+            DateOnly.FromDateTime(DateTime.Now),
+            RequestedServiceState.Pending,
+            requester,
+            service);
+    
+        requestedServiceDAL.CreateRequestedService(requestedService);
+    }
+}

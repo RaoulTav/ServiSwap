@@ -105,7 +105,7 @@ namespace ServiSwap.DAL
 
             using MySqlDataReader reader = command.ExecuteReader();
 
-            if(reader.Read())
+            if (reader.Read())
             {
                 person = new(
                     username,
@@ -145,7 +145,7 @@ namespace ServiSwap.DAL
 
             using MySqlDataReader reader = command.ExecuteReader();
 
-            if(reader.Read())
+            if (reader.Read())
             {
                 person = new(
                     reader.GetString("username"),

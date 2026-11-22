@@ -69,7 +69,7 @@ namespace ServiSwap.DAL
 
             MySqlDataReader reader = command.ExecuteReader();
 
-            if(reader.Read())
+            if (reader.Read())
             {
                 Category category = new(reader.GetInt32("categoryId"), reader.GetString("categoryName"));
 
@@ -118,6 +118,84 @@ namespace ServiSwap.DAL
             }
 
             return requestedService;
+        }
+
+        public void FindAllByRequester(Person requester)
+        {
+            Dictionary<int, Category> categories = [];
+            Dictionary<int, Person> people = [];
+
+            using MySqlConnection connection = new(connectionString);
+
+            connection.Open();
+
+            string query = """
+                SELECT rs.reqServiceId, rs.dateOfRequest, rs.state, 
+                    s.serviceId, s.serviceName, s.serviceDescription, s.dateOfPublication, 
+                    c.categoryId, c.categoryName, 
+                    p.personId AS pId, p.username AS pUsername, p.password AS pPassword, p.lastName AS pLastName, p.firstName AS pFirstName, 
+                        p.email AS pEmail, p.creditHours AS pCreditHours, p.latitude AS pLatitude, p.longitude AS pLongitude, 
+                    pa.streetNumber AS paStreetNumber, pa.streetName AS paStreetName, pa.city AS paCity 
+                FROM RequestedServices rs INNER JOIN Services s 
+                        INNER JOIN Categories c ON s.categoryId = c.categoryId 
+                        INNER JOIN People p INNER JOIN Addresses pa ON p.addressId = pa.addressId ON s.providerId = p.personId 
+                    ON rs.serviceId = s.serviceId 
+                WHERE rs.requesterId = @personId
+            """;
+
+            using MySqlCommand command = new(query, connection);
+
+            command.Parameters.AddWithValue("@personId", requester.PersonId);
+
+            using MySqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                int categoryId = reader.GetInt32("categoryId");
+
+                if (!categories.TryGetValue(categoryId, out Category? category))
+                {
+                    category = new(categoryId, reader.GetString("categoryName"));
+
+                    categories.Add(categoryId, category);
+                }
+
+                int personId = reader.GetInt32("pId");
+
+                if (!people.TryGetValue(personId, out Person? provider))
+                {
+                    provider = new(
+                        reader.GetString("pUsername"),
+                        reader.GetString("pPassword"),
+                        reader.GetString("pLastName"),
+                        reader.GetString("pFirstName"),
+                        reader.GetString("pEmail"),
+                        reader.GetInt32("pCreditHours"),
+                        reader.GetString("paStreetNumber"),
+                        reader.GetString("paStreetName"),
+                        reader.GetString("paCity"),
+                        reader.GetDouble("pLatitude"),
+                        reader.GetDouble("pLongitude")
+                    ) { PersonId = personId };
+
+                    people.Add(personId, provider);
+                }
+
+                Service service = new(
+                    reader.GetString("serviceName"),
+                    reader.GetString("serviceDescription"),
+                    reader.GetDateOnly("dateOfPublication"),
+                    category,
+                    provider
+                ) { ServiceId = reader.GetInt32("serviceId") };
+                
+                _ = new RequestedService(
+                    reader.GetDateOnly("dateOfRequest"),
+                    (RequestedServiceState)reader.GetInt32("state"),
+                    requester,
+                    service
+                ) { RequestedServiceId = reader.GetInt32("reqServiceId") };
+            }
         }
     }
 }
