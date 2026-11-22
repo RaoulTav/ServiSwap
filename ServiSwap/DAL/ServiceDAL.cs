@@ -157,8 +157,19 @@ namespace ServiSwap.DAL
             return service;
         }
 
-        public List<Service> SearchByCategoryAndOrDistance(double latitude, double longitude, int? categoryId = null, double? distance = null)
+        public List<Service> SearchByCategoryAndOrDistance(double? latitude = null, double? longitude = null, 
+            int? categoryId = null, double? distance = null)
         {
+            if (latitude.HasValue != longitude.HasValue)
+            {
+                throw new ArgumentException("Latitude and longitude must be provided together.");
+            }
+
+            if (distance.HasValue && !latitude.HasValue)
+            {
+                throw new ArgumentException("Coordinates are required when filtering by distance.", nameof(distance));
+            }
+
             List<Service> services = [];
             Dictionary<int, Category> categories = [];
             Dictionary<int, Person> people = [];
@@ -208,8 +219,8 @@ namespace ServiSwap.DAL
 
             if (distance.HasValue)
             {
-                command.Parameters.AddWithValue("@latitude", latitude);
-                command.Parameters.AddWithValue("@longitude", longitude);
+                command.Parameters.AddWithValue("@latitude", latitude!.Value);
+                command.Parameters.AddWithValue("@longitude", longitude!.Value);
                 command.Parameters.AddWithValue("@distance", distance);
             }
 

@@ -12,7 +12,6 @@ public class PersonController(PersonService personService) : Controller
     [ValidateAntiForgeryToken]
     public IActionResult RequestService(int serviceId)
     {
-        // TODO : use HttpContext.Session with AddSession() and UseSessiong() configured in Program.cs
         int? personId = HttpContext.Session.GetInt32("PersonId");
 
         if (personId is null) return RedirectToAction("Login", "Person"); // TODO : create corresponding action for Login
@@ -42,6 +41,8 @@ public class PersonController(PersonService personService) : Controller
         }
         catch (EntityNotFoundException)
         {
+            HttpContext.Session.Remove("PersonId");
+            
             return RedirectToAction("Login", "Person"); 
         }
     }
