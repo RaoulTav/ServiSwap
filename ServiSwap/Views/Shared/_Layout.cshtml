@@ -1,47 +1,135 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ServiSwap</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ServiSwap.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ServiSwap</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                    </ul>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@ViewData["Title"] - ServiSwap</title>
+        <link rel="shortcut icon" type="image/icon" href="/assets/favicon.ico" />
+        <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/assets/css/linearicons.css">
+        <link rel="stylesheet" href="/assets/css/animate.css">
+        <link rel="stylesheet" href="/assets/css/slick.css">
+        <link rel="stylesheet" href="/assets/css/slick-theme.css">
+        <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/assets/css/bootsnav.css">
+        <link rel="stylesheet" href="/assets/css/responsive.css">
+        <link rel="stylesheet" href="/assets/css/style.css">
+    </head>
+    <body>
+        <header id="header-top" class="header-top">
+            <ul>
+                <li>
+                    <div class="header-top-left">
+                        <ul>
+                            <li class="select-opt">
+                                <a href="#"><span class="lnr lnr-magnifier"></span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="head-responsive-right pull-right">
+                    <div class="header-top-right">
+                        <ul>
+                            <li class="header-top-contact">
+                                <a asp-controller="Person" asp-action="Login">Se connecter</a>
+                            </li>
+                            <li class="header-top-contact">
+                                <a asp-controller="Person" asp-action="Register">Créer un compte</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </header>
+
+        <section class="top-area">
+            <div class="header-area">
+                <nav 
+                    class="navbar navbar-default bootsnav  navbar-sticky navbar-scrollspy" 
+                    data-minus-value-desktop="70" 
+                    data-minus-value-mobile="55" data-speed="1000"
+                >
+                    <div class="container">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <a class="navbar-brand" asp-controller="Home" asp-action="Index">servi<span>swap</span></a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="clearfix"></div>
+        </section>
+
+        <div>
+            <main role="main">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer id="footer" class="footer">
+            <div class="container">
+                <div class="footer-menu">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="navbar-header">
+                                <a class="navbar-brand" asp-controller="Home" asp-action="Index">servi<span>swap</span></a>
+                            </div>
+                        </div>
+                        <div class="col-sm-9">
+                            <ul class="footer-menu-item">
+                                <li class="scroll"><a href="#">avis</a></li>
+                                <li class="scroll"><a href="#">blog</a></li>
+                                <li class="scroll"><a href="#">contact</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="hm-footer-copyright">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <p>
+                                &copy;copyright. designed by <a href="https://www.themesine.com/">themesine</a>
+                            </p>
+                        </div>
+                        <div class="col-sm-7">
+                            <div class="footer-social">
+                                <span><i class="fa fa-phone"> +32 12 34 56 78</i></span>
+                                <a href="#"><i class="fa fa-facebook"></i></a>
+                                <a href="#"><i class="fa fa-twitter"></i></a>
+                                <a href="#"><i class="fa fa-linkedin"></i></a>
+                                <a href="#"><i class="fa fa-google-plus"></i></a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+            <div id="scroll-Top">
+                <div class="return-to-top">
+                    <i 
+                        class="fa fa-angle-up " 
+                        id="scroll-top" 
+                        data-toggle="tooltip" 
+                        data-placement="top" 
+                        title="" 
+                        data-original-title="Back to Top" 
+                        aria-hidden="true"
+                    >
+                    </i>
+                </div>
+            </div>
+        </footer>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - ServiSwap
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
+        <script src="/assets/js/jquery.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+        <script src="/assets/js/bootstrap.min.js"></script>
+        <script src="/assets/js/bootsnav.js"></script>
+        <script src="/assets/js/feather.min.js"></script>
+        <script src="/assets/js/jquery.counterup.min.js"></script>
+        <script src="/assets/js/waypoints.min.js"></script>
+        <script src="/assets/js/slick.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+        <script src="/assets/js/custom.js"></script>
+    </body>
 </html>
