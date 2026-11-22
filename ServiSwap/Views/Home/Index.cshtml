@@ -1,8 +1,97 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ServiSwap.ViewModels.SearchServiceViewModel
+
+@{
+    ViewData["Title"] = "Accueil";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section id="home" class="welcome-hero">
+	<div class="container">
+		<div class="welcome-hero-txt">
+			<h2>Echangez vos compétences<br />Créez des liens</h2>
+			<p>Trouvez le service qui vous convient, en un clic !</p>
+		</div>
+		<div class="welcome-hero-serch-box">
+			<form asp-controller="Service" asp-action="Search" method="get" class="welcome-hero-form">
+				<div class="welcome-hero-form">
+					<div class="single-welcome-hero-form">
+						<h3 style="margin-right: 10px;">Catégorie:</h3>
+						<div class="category-dropdown">
+							<select class="category-menu" name="categoryId">
+								<option value="" selected disabled>-- Sélectionnez une catégorie --</option>
+                                @if (Model is not null)
+                                {
+                                    @foreach (Category c in Model.Categories)
+                                    {
+                                        <option value="@c.CategoryId">@c.CategoryName</option>
+                                    }
+                                }
+							</select>
+						</div>
+					</div>
+				<div class="welcome-hero-search">
+					<button type="submit" class="welcome-hero-btn">Rechercher <i data-feather="search"></i></button>
+				</div>
+			</form>
+		</div>
+	</div>
+</section>
+
+<section id="works" class="works">
+	<div class="container">
+		<div class="works-content">
+			<div class="row">
+				@if (Model is not null && Model.Services.Any())
+				{
+					@foreach (Service s in Model.Services)
+					{
+						<div class="col-md-4 col-sm-6">
+							<div class="single-how-works">
+								@switch (s.Category.CategoryId)
+								{
+									case 1:
+										<div class="single-how-works-icon">
+											<img src="/assets/images/domesticS.png">
+										</div>
+										break;
+									case 2:
+										<div class="single-how-works-icon">
+											<img src="/assets/images/creativeS.png">
+										</div>
+										break;
+									case 3:
+										<div class="single-how-works-icon">
+											<img src="/assets/images/wellnessS.png">
+										</div>
+										break;
+									case 4:
+										<div class="single-how-works-icon">
+											<img src="/assets/images/handymanS.png">
+										</div>
+										break;
+									default:
+										break;
+								}
+								<h2>@s.ServiceName</h2>
+								<h3>(@s.Provider.Username)</h3>
+								<p class="service-description">@s.ServiceDescription</p>
+								<p><strong>Lieu:</strong> @s.Provider.City</p>
+								<a 
+                                    asp-controller="Service" 
+                                    asp-action="ServiceDetails" 
+                                    asp-route-serviceId="@s.ServiceId" 
+                                    class="welcome-hero-btn how-work-btn"
+                                >
+                                    En savoir plus
+                                </a>
+							</div>
+						</div>
+					}
+				}
+				else
+				{
+					<h4 class="no-service-message">Aucun service ne correspond à cette recherche.</h4>
+				}
+			</div>
+		</div>
+	</div>
+</section>
