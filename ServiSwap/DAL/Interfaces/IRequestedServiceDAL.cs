@@ -11,5 +11,7 @@ namespace ServiSwap.DAL.Interfaces
         public bool Complete(RequestedService requestedService);
 
         public void FindAllByRequester(Person requester);
+
+        public void FindAllByProvider(Person provider);
     }
 }

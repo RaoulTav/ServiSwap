@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ServiSwap.Exceptions;
+using ServiSwap.Extensions;
 using ServiSwap.Models;
 using ServiSwap.Services;
 using ServiSwap.ViewModels;
@@ -27,7 +28,7 @@ public class HomeController(HomePageService homePageService, ServiceManager serv
     [HttpGet]
     public IActionResult SearchForServices([Bind(Prefix = "Search")] ServiceSearchViewModel search)
     {
-        int? personId = HttpContext.Session.GetInt32("PersonId");
+        int? personId = HttpContext.Session.GetPersonId();
 
         try
         {
@@ -41,7 +42,7 @@ public class HomeController(HomePageService homePageService, ServiceManager serv
             });
         } catch (EntityNotFoundException ex) when (ex.EntityName == "Person")
         {
-            HttpContext.Session.Remove("PersonId");
+            HttpContext.Session.ClearAuthenticatedPerson();
 
             return RedirectToAction("Login", "Person");
         }

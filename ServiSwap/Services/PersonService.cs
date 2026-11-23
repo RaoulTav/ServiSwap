@@ -50,6 +50,15 @@ public class PersonService(
         return person;
     }
 
+    public Person GetServicesAsProvider(int personId)
+    {
+        Person provider = personDAL.FindById(personId) ?? throw new EntityNotFoundException("Person", personId);
+
+        requestedServiceDAL.FindAllByProvider(provider);
+
+        return provider;
+    }
+
     public void RequestService(int personId, int serviceId)
     {
         Person requester = personDAL.FindById(personId) ?? throw new EntityNotFoundException("Requester", personId);

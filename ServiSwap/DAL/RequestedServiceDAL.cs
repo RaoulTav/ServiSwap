@@ -197,5 +197,89 @@ namespace ServiSwap.DAL
                 ) { RequestedServiceId = reader.GetInt32("reqServiceId") };
             }
         }
+
+        public void FindAllByProvider(Person provider)
+        {
+            Dictionary<int, Category> categories = [];
+            Dictionary<int, Person> requesters = [];
+            Dictionary<int, Service> services = [];
+
+            using MySqlConnection connection = new(connectionString);
+
+            connection.Open();
+
+            string query = """
+                SELECT rs.reqServiceId, rs.dateOfRequest, rs.state,
+                    s.serviceId, s.serviceName, s.serviceDescription, s.dateOfPublication,
+                    c.categoryId, c.categoryName,
+                    r.personId AS rId, r.username AS rUsername, r.password AS rPassword, r.lastName AS rLastName, r.firstName AS rFirstName,
+                        r.email AS rEmail, r.creditHours AS rCreditHours, r.latitude AS rLatitude, r.longitude AS rLongitude,
+                    ra.streetNumber AS raStreetNumber, ra.streetName AS raStreetName, ra.city AS raCity
+                FROM RequestedServices rs
+                    INNER JOIN Services s ON rs.serviceId = s.serviceId
+                    INNER JOIN Categories c ON s.categoryId = c.categoryId
+                    INNER JOIN People r ON rs.requesterId = r.personId
+                    INNER JOIN Addresses ra ON r.addressId = ra.addressId
+                WHERE s.providerId = @providerId
+            """;
+
+            using MySqlCommand command = new(query, connection);
+
+            command.Parameters.AddWithValue("@providerId", provider.PersonId);
+
+            using MySqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                int categoryId = reader.GetInt32("categoryId");
+                if (!categories.TryGetValue(categoryId, out Category? category))
+                {
+                    category = new(categoryId, reader.GetString("categoryName"));
+                    categories.Add(categoryId, category);
+                }
+
+                int requesterId = reader.GetInt32("rId");
+                if (!requesters.TryGetValue(requesterId, out Person? requester))
+                {
+                    requester = new(
+                        reader.GetString("rUsername"),
+                        reader.GetString("rPassword"),
+                        reader.GetString("rLastName"),
+                        reader.GetString("rFirstName"),
+                        reader.GetString("rEmail"),
+                        reader.GetInt32("rCreditHours"),
+                        reader.GetString("raStreetNumber"),
+                        reader.GetString("raStreetName"),
+                        reader.GetString("raCity"),
+                        reader.GetDouble("rLatitude"),
+                        reader.GetDouble("rLongitude")
+                    ) { PersonId = requesterId };
+
+                    requesters.Add(requesterId, requester);
+                }
+
+                int serviceId = reader.GetInt32("serviceId");
+                if (!services.TryGetValue(serviceId, out Service? service))
+                {
+                    service = provider.Services.FirstOrDefault(existing => existing.ServiceId == serviceId)
+                        ?? new Service(
+                            reader.GetString("serviceName"),
+                            reader.GetString("serviceDescription"),
+                            reader.GetDateOnly("dateOfPublication"),
+                            category,
+                            provider)
+                        { ServiceId = serviceId };
+
+                    services.Add(serviceId, service);
+                }
+
+                _ = new RequestedService(
+                    reader.GetDateOnly("dateOfRequest"),
+                    (RequestedServiceState)reader.GetInt32("state"),
+                    requester,
+                    service
+                ) { RequestedServiceId = reader.GetInt32("reqServiceId") };
+            }
+        }
     }
 }

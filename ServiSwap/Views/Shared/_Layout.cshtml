@@ -1,5 +1,5 @@
 ﻿@{
-    int? personId = Context.Session.GetInt32("PersonId");
+    int? personId = Context.Session.GetPersonId();
     string? username = Context.Session.GetString("Username");
     int? creditHours = Context.Session.GetInt32("CreditHours");
 }
@@ -84,7 +84,7 @@
                                 @if (personId is not null)
                                 {
                                     <li><a asp-controller="Service" asp-action="MyServices">mes services</a></li>
-                                    <li><a asp-controller="Service" asp-action="PService">services donnés</a></li>
+                                    <li><a asp-controller="Person" asp-action="PService">services donnés</a></li>
                                     <li><a asp-controller="Service" asp-action="RService">services demandés</a></li>
                                 }
                             </ul>

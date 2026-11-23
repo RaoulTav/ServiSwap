@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ServiSwap.Exceptions;
+using ServiSwap.Extensions;
 using ServiSwap.Models;
 using ServiSwap.Services;
 
@@ -12,7 +13,7 @@ public class ServiceController(ServiceManager serviceManager) : Controller
     [HttpGet]
     public IActionResult ServiceDetails(int serviceId)
     {
-        int? personId = HttpContext.Session.GetInt32("PersonId");
+        int? personId = HttpContext.Session.GetPersonId();
 
         if (personId is null)
         {
