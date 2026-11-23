@@ -8,9 +8,25 @@ namespace ServiSwap.DAL
     {
         private readonly string connectionString = connectionString;
 
-        public bool Complete(RequestedService requestedService)
+        public void ReportHours(RequestedService requestedService)
         {
-            throw new NotImplementedException();
+            using MySqlConnection connection = new(connectionString);
+
+            connection.Open();
+
+            string query = """
+                UPDATE RequestedServices
+                SET state = @state, reportedHours = @reportedHours
+                WHERE reqServiceId = @requestedServiceId
+            """;
+
+            using MySqlCommand command = new(query, connection);
+
+            command.Parameters.AddWithValue("@state", (int)requestedService.State);
+            command.Parameters.AddWithValue("@reportedHours", requestedService.ReportedHours);
+            command.Parameters.AddWithValue("@requestedServiceId", requestedService.RequestedServiceId);
+
+            command.ExecuteNonQuery();
         }
 
         public void CreateRequestedService(RequestedService requestedService)

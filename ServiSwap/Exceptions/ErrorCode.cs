@@ -19,5 +19,6 @@ public enum ErrorCode
     NotEnoughCredits,
     ServiceAlreadyRequested,
     UserAlreadyExist,
-    AddressNotFound
+    AddressNotFound,
+    NotServiceProvider
 }

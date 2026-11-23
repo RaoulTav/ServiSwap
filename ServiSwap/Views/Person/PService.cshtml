@@ -2,18 +2,28 @@
 
 @{
     ViewData["Title"] = "Services donnés";
+    string? successMessage = TempData["SuccessMessage"] as string;
+    string? errorMessage = TempData["ErrorMessage"] as string;
 }
 
 <section id="works" class="works">
 	<div class="container">
 		<div class="works-content">
+			@if (!string.IsNullOrWhiteSpace(successMessage))
+			{
+				<div class="alert alert-success" role="status">@successMessage</div>
+			}
+			@if (!string.IsNullOrWhiteSpace(errorMessage))
+			{
+				<div class="alert alert-danger" role="alert">@errorMessage</div>
+			}
 			<div class="row">
 				@if (Model.Count > 0)
 				{
 					@foreach (RequestedService provS in Model)
 					{
-						<div class="col-md-4 col-sm-6 rpservice @(provS.State.Equals(RequestedServiceState.Pending) ? "disabled" : "")">
-							<div class="single-how-works rpservice @(provS.State.Equals(RequestedServiceState.Pending) ? "disabled" : "")">
+						<div class="col-md-4 col-sm-6 rpservice @(provS.State.Equals(RequestedServiceState.Completed) ? "disabled" : "")">
+							<div class="single-how-works rpservice @(provS.State.Equals(RequestedServiceState.Completed) ? "disabled" : "")">
 								<h2>
 									<a 
 										asp-controller="Service" 
@@ -31,9 +41,16 @@
 								@if (provS.State.Equals(RequestedServiceState.Pending))
 								{
 									<form class="custom-form" asp-controller="Service" asp-action="ReportHours" method="post">
-										<input asp-for="@provS.RequestedServiceId" hidden />
-										<label class="custom-label" asp-for="@provS.ReportedHours"></label>
-										<input asp-for="@provS.ReportedHours" required />
+										<input type="hidden" name="reqServiceId" value="@provS.RequestedServiceId" />
+										<label class="custom-label" for="reportedHours-@provS.RequestedServiceId">Heures prestées</label>
+										<input 
+											id="reportedHours-@provS.RequestedServiceId" 
+											name="reportedHours" 
+											type="number" 
+											min="0" 
+											value="@provS.ReportedHours" 
+											required 
+										/>
 										<input class="submit-button" type="submit" value="Envoyer" />
 									</form>
 								}

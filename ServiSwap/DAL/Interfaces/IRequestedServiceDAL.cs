@@ -8,7 +8,7 @@ namespace ServiSwap.DAL.Interfaces
 
         public RequestedService? FindById(int requestedServiceId);
 
-        public bool Complete(RequestedService requestedService);
+        public void ReportHours(RequestedService requestedService);
 
         public void FindAllByRequester(Person requester);
 
