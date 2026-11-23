@@ -98,14 +98,14 @@ public class PersonController(PersonService personService) : Controller
     {
         int? personId = HttpContext.Session.GetInt32("PersonId");
 
-        if (personId is null) return RedirectToAction("Login", "Person"); // TODO : create corresponding action for Login
+        if (personId is null) return RedirectToAction("Login", "Person");
     
         try
         {
             personService.RequestService(personId.Value, serviceId);
             TempData["SuccessMessage"] = "La demande de service a été envoyée.";
 
-            return RedirectToAction("Details", "Service", new { id = serviceId }); // TODO : create corresponding action
+            return RedirectToAction("ServiceDetails", "Service", new { serviceId });
         }
         catch (BusinessException ex)
         {
@@ -117,7 +117,7 @@ public class PersonController(PersonService personService) : Controller
                 _ => "La demande n'a pas pu être effectuée."
             };
     
-            return RedirectToAction("Details", "Service", new { id = serviceId }); 
+            return RedirectToAction("ServiceDetails", "Service", new { serviceId }); 
         }
         catch (EntityNotFoundException ex) when (ex.EntityName == "Service")
         {

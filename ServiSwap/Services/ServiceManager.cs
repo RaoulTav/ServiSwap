@@ -27,5 +27,7 @@ public class ServiceManager(IPersonDAL personDAL, IServiceDAL serviceDAL)
         }
 
         return serviceDAL.SearchByCategoryAndOrDistance(latitude, longitude, categoryId, effectiveDistance);
-    } 
+    }
+
+    public Service GetService(int serviceId) => serviceDAL.FindById(serviceId) ?? throw new EntityNotFoundException("Service", serviceId);
 }

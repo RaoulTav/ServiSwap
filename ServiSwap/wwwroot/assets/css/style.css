@@ -1046,6 +1046,16 @@ nav.navbar.bootsnav .navbar-toggle i
     display: none;
 }
 
+.message-box-success
+{
+    border-color: #198754;
+}
+
+.message-box-error
+{
+    border-color: #dc3545;
+}
+
 .message-content 
 {
     text-align: center;
