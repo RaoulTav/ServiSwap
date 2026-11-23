@@ -1,0 +1,36 @@
+﻿@model ServiSwap.ViewModels.ServiceCreationViewModel
+
+@{
+	ViewData["Title"] = "Ajouter un service";
+}
+
+<section id="works" class="serviceD addservice">
+    <div class="works custom">
+        <div class="container">
+            <div class="row">
+                <div class="serviceDetails">
+                    <div class="single-how-works custom">
+                        <form class="service-form-container" asp-controller="Service" asp-action="AddS" method="post">
+                            <label asp-for="CategoryId"></label>
+                            <select asp-for="CategoryId" class="category-menu">
+                                <option value="">-- Sélectionnez une catégorie --</option>
+                                @foreach (Category c in Model.Categories)
+                                {
+                                    <option value="@c.CategoryId">@c.CategoryName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CategoryId" class="field-validation-error"></span>
+                            <label asp-for="ServiceName"></label>
+                            <input asp-for="ServiceName" />
+                            <span asp-validation-for="ServiceName" class="field-validation-error"></span>
+                            <label asp-for="ServiceDescription"></label>
+                            <textarea asp-for="ServiceDescription" rows="5" cols="50"></textarea>
+                            <span asp-validation-for="ServiceDescription" class="field-validation-error"></span>
+                            <input type="submit" value="Ajouter le service" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

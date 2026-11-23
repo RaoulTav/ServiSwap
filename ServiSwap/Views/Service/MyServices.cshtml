@@ -1,8 +1,22 @@
 ﻿@model List<Service>
 
+@{
+	ViewData["Title"] = "Mes services";
+	string? successMessage = TempData["SuccessMessage"] as string;
+	string? errorMessage = TempData["ErrorMessage"] as string;
+}
+
 <section id="works" class="works">
 	<div class="container">
 		<div class="works-content">
+			@if (!string.IsNullOrWhiteSpace(successMessage))
+			{
+				<div class="alert alert-success" role="status">@successMessage</div>
+			}
+			@if (!string.IsNullOrWhiteSpace(errorMessage))
+			{
+				<div class="alert alert-danger" role="alert">@errorMessage</div>
+			}
 			<div class="row">
 				<p><a class="add-service-link" asp-controller="Service" asp-action="AddS">Ajouter un service</a></p>
 				@if (Model.Count > 0)

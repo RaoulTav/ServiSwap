@@ -3,12 +3,14 @@ using ServiSwap.Exceptions;
 using ServiSwap.Extensions;
 using ServiSwap.Models;
 using ServiSwap.Services;
+using ServiSwap.ViewModels;
 
 namespace ServiSwap.Controllers;
 
-public class ServiceController(ServiceManager serviceManager) : Controller
+public class ServiceController(ServiceManager serviceManager, HomePageService homePageService) : Controller
 {
     private readonly ServiceManager serviceManager = serviceManager;
+    private readonly HomePageService homePageService = homePageService;
 
     [HttpGet]
     public IActionResult ServiceDetails(int serviceId)
@@ -153,6 +155,65 @@ public class ServiceController(ServiceManager serviceManager) : Controller
             HttpContext.Session.ClearAuthenticatedPerson();
 
             return RedirectToAction("Login", "Person");
+        }
+    }
+
+    [HttpGet]
+    public IActionResult AddS()
+    {
+        int? personId = HttpContext.Session.GetPersonId();
+
+        if (personId is not int)
+        {
+            return RedirectToAction("Login", "Person");
+        }
+
+        ServiceCreationViewModel serviceCreationViewModel = new()
+        {
+            Categories = homePageService.GetCategories()
+        };
+
+        return View(serviceCreationViewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult AddS(ServiceCreationViewModel model)
+    {
+        int? personId = HttpContext.Session.GetPersonId();
+
+        if (personId is not int authenticatedPersonId)
+        {
+            return RedirectToAction("Login", "Person");
+        }
+
+        if (!ModelState.IsValid || model.CategoryId is not int categoryId)
+        {
+            model.Categories = homePageService.GetCategories();
+
+            return View(model);
+        }
+
+        try
+        {
+            serviceManager.OfferService(authenticatedPersonId, categoryId, model.ServiceName, model.ServiceDescription);
+
+            TempData["SuccessMessage"] = "Le service a été ajouté.";
+
+            return RedirectToAction(nameof(MyServices));
+        }
+        catch (EntityNotFoundException ex) when (ex.EntityName == "Person")
+        {
+            HttpContext.Session.ClearAuthenticatedPerson();
+
+            return RedirectToAction("Login", "Person");
+        }
+        catch (EntityNotFoundException ex) when (ex.EntityName == "Category")
+        {
+            ModelState.AddModelError(nameof(model.CategoryId), "La catégorie sélectionnée n'existe pas.");
+            model.Categories = homePageService.GetCategories();
+            
+            return View(model);
         }
     }
 }

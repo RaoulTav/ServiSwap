@@ -4,11 +4,26 @@ using ServiSwap.Models;
 
 namespace ServiSwap.Services;
 
-public class ServiceManager(IPersonDAL personDAL, IServiceDAL serviceDAL, IRequestedServiceDAL requestedServiceDAL)
+public class ServiceManager(IPersonDAL personDAL, IServiceDAL serviceDAL, IRequestedServiceDAL requestedServiceDAL, ICategoryDAL categoryDAL)
 {
     private readonly IPersonDAL personDAL = personDAL;
     private readonly IServiceDAL serviceDAL = serviceDAL;
     private readonly IRequestedServiceDAL requestedServiceDAL = requestedServiceDAL;
+    private readonly ICategoryDAL categoryDAL = categoryDAL;
+
+    public Service OfferService(int providerId, int categoryId, string serviceName, string serviceDescription)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(providerId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(categoryId);
+
+        Person provider = personDAL.FindById(providerId) ?? throw new EntityNotFoundException("Person", providerId);
+        Category category = categoryDAL.FindById(categoryId) ?? throw new EntityNotFoundException("Category", categoryId);
+
+        Service service = new(serviceName, serviceDescription, DateOnly.FromDateTime(DateTime.Today), category, provider);
+        serviceDAL.CreateService(service);
+
+        return service;
+    }
 
     public List<Service> SearchServices(int? categoryId, int? personId, double? distance)
     {

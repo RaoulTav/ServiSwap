@@ -5,6 +5,7 @@
     string? errorMessage = TempData["ErrorMessage"] as string;
     string? message = errorMessage ?? successMessage;
     bool isError = errorMessage is not null;
+    ViewData["Title"] = "Détails du service";
 }
 
 <section id="works" class="serviceD">
