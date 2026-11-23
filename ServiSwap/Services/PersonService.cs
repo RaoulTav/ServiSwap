@@ -10,6 +10,11 @@ public class PersonService(IPersonDAL personDAL, IServiceDAL serviceDAL, IReques
     private readonly IServiceDAL serviceDAL = serviceDAL;
     private readonly IRequestedServiceDAL requestedServiceDAL = requestedServiceDAL;
 
+    public Person? Authenticate(string username, string password)
+    {
+        return personDAL.FindByCredentials(username, password);
+    }
+
     public void RequestService(int personId, int serviceId)
     {
         Person requester = personDAL.FindById(personId) ?? throw new EntityNotFoundException("Requester", personId);

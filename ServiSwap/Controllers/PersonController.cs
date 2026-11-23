@@ -1,12 +1,53 @@
 using Microsoft.AspNetCore.Mvc;
 using ServiSwap.Exceptions;
+using ServiSwap.Models;
 using ServiSwap.Services;
+using ServiSwap.ViewModels;
 
 namespace ServiSwap.Controllers;
 
 public class PersonController(PersonService personService) : Controller
 {
     private readonly PersonService personService = personService;
+
+    public IActionResult Login()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Login(AuthenticateViewModel authenticate)
+    {
+        if (ModelState.IsValid)
+        {
+            Person? person = personService.Authenticate(authenticate.Username, authenticate.Password);
+
+            if (person is null)
+            {
+                ViewBag.NoAccount = "Nom d'utilisateur ou mot de passe incorrect.";
+
+                return View();
+            }
+
+            HttpContext.Session.SetInt32("PersonId", person.PersonId);
+            HttpContext.Session.SetString("Username", person.Username);
+            HttpContext.Session.SetInt32("CreditHours", person.CreditHours);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        return View(authenticate);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Logout()
+    {
+        HttpContext.Session.Clear();
+
+        return RedirectToAction("Index", "Home");
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
