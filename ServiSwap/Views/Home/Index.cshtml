@@ -11,17 +11,29 @@
 			<p>Trouvez le service qui vous convient, en un clic !</p>
 		</div>
 		<div class="welcome-hero-serch-box">
-			<form asp-controller="Service" asp-action="Search" method="get" class="welcome-hero-form">
+			<form asp-controller="Home" asp-action="SearchForServices" method="get" class="welcome-hero-form">
 				<div class="welcome-hero-form">
 					<div class="single-welcome-hero-form">
 						<h3 style="margin-right: 10px;">Catégorie:</h3>
 						<div class="category-dropdown">
-							<select class="category-menu" name="categoryId">
-								<option value="" selected disabled>-- Sélectionnez une catégorie --</option>
+							<select asp-for="Search.CategoryId" class="category-menu">
+								<option value="">Toutes les catégories</option>
                                 @foreach (Category c in Model.Categories)
 								{
 									<option value="@c.CategoryId">@c.CategoryName</option>
 								}
+							</select>
+						</div>
+					</div>
+					<div class="single-welcome-hero-form">
+						<h3 style="margin-right: 10px;">Distance:</h3>
+						<div class="category-dropdown">
+							<select asp-for="Search.Distance" class="category-menu">
+								<option value="">Toutes distances</option>
+								<option value="25">&lt 25 km</option>
+								<option value="50">&lt 50 km</option>
+								<option value="75">&lt 75 km</option>
+								<option value="100">&lt 100 km</option>
 							</select>
 						</div>
 					</div>

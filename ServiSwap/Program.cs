@@ -5,6 +5,15 @@ using ServiSwap.Services;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
+});
 
 string? connectionString = builder.Configuration.GetConnectionString("ServiSwapDatabase");
 
@@ -17,6 +26,7 @@ builder.Services.AddSingleton<IRequestedServiceDAL>(c => new RequestedServiceDAL
 
 builder.Services.AddSingleton<PersonService>();
 builder.Services.AddSingleton<HomePageService>();
+builder.Services.AddSingleton<ServiceManager>();
 
 WebApplication app = builder.Build();
 
@@ -27,8 +37,7 @@ if (!app.Environment.IsDevelopment()) { app.UseHsts(); }
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
-// TODO : configure session and call app.UseSession()
+app.UseSession();
 
 app.UseAuthorization();
 
