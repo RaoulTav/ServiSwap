@@ -4,15 +4,50 @@ using ServiSwap.Models;
 
 namespace ServiSwap.Services;
 
-public class PersonService(IPersonDAL personDAL, IServiceDAL serviceDAL, IRequestedServiceDAL requestedServiceDAL)
+public class PersonService(
+    IPersonDAL personDAL,
+    IServiceDAL serviceDAL,
+    IRequestedServiceDAL requestedServiceDAL,
+    IGeocodingService geocodingService)
 {
     private readonly IPersonDAL personDAL = personDAL;
     private readonly IServiceDAL serviceDAL = serviceDAL;
     private readonly IRequestedServiceDAL requestedServiceDAL = requestedServiceDAL;
+    private readonly IGeocodingService geocodingService = geocodingService;
 
     public Person? Authenticate(string username, string password)
     {
         return personDAL.FindByCredentials(username, password);
+    }
+
+    public async Task<Person> CreateUser(string username, string password, string email, string lastname, string firstname,
+        string streetnumber, string streetname, string city, CancellationToken cancellationToken = default)
+    {
+        if (personDAL.Exists(username, email))
+        {
+            throw new BusinessException(ErrorCode.UserAlreadyExist, "Another user is already using this username or email address.");
+        }
+
+        GeoCoordinates? coordinates = await geocodingService.GeocodeAddressAsync(streetnumber, streetname, city, cancellationToken) 
+            ?? throw new BusinessException(ErrorCode.AddressNotFound, "The address could not be located.");
+
+        Person person = new(
+            username, 
+            password, 
+            lastname, 
+            firstname, 
+            email, 
+            10, 
+            streetnumber, 
+            streetname, 
+            city,
+            coordinates.Latitude, 
+            coordinates.Longitude
+        );
+
+        personDAL.CreatePerson(person);
+
+        return person;
     }
 
     public void RequestService(int personId, int serviceId)
