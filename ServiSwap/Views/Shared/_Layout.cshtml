@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@{
+    int? personId = Context.Session.GetInt32("PersonId");
+    string? username = Context.Session.GetString("Username");
+    int? creditHours = Context.Session.GetInt32("CreditHours");
+}
+
+<!DOCTYPE html>
 <html lang="fr">
     <head>
         <meta charset="utf-8" />
@@ -34,12 +40,25 @@
                 <li class="head-responsive-right pull-right">
                     <div class="header-top-right">
                         <ul>
-                            <li class="header-top-contact">
-                                <a asp-controller="Person" asp-action="Login">Se connecter</a>
-                            </li>
-                            <li class="header-top-contact">
-                                <a asp-controller="Person" asp-action="Register">Créer un compte</a>
-                            </li>
+                            @if (personId is null)
+                            {
+                                <li class="header-top-contact">
+                                    <a asp-controller="Person" asp-action="Login">Se connecter</a>
+                                </li>
+                                <li class="header-top-contact">
+                                    <a asp-controller="Person" asp-action="Register">Créer un compte</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="header-top-contact">Bonjour @username</li>
+                                <li class="header-top-contact">Crédits : @creditHours h</li>
+                                <li class="header-top-contact">
+                                    <form asp-controller="Person" asp-action="Logout" method="post">
+                                        <button type="submit">Se déconnecter</button>
+                                    </form>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </li>
@@ -59,6 +78,16 @@
                                 <i class="fa fa-bars"></i>
                             </button>
                             <a class="navbar-brand" asp-controller="Home" asp-action="Index">servi<span>swap</span></a>
+                        </div>
+                        <div class="collapse navbar-collapse menu-ui-design" id="navbar-menu">
+                            <ul class="nav navbar-nav navbar-right" data-in="fadeInDown" data-out="fadeOutUp">
+                                @if (personId is not null)
+                                {
+                                    <li><a asp-controller="Service" asp-action="MyServices">mes services</a></li>
+                                    <li><a asp-controller="Service" asp-action="PService">services donnés</a></li>
+                                    <li><a asp-controller="Service" asp-action="RService">services demandés</a></li>
+                                }
+                            </ul>
                         </div>
                     </div>
                 </nav>
@@ -86,6 +115,10 @@
                                 <li class="scroll"><a href="#">avis</a></li>
                                 <li class="scroll"><a href="#">blog</a></li>
                                 <li class="scroll"><a href="#">contact</a></li>
+                                @if (personId is not null)
+                                {
+                                    <li><a asp-controller="Person" asp-action="EditProfile">mon compte</a></li>
+                                }
                             </ul>
                         </div>
                     </div>
