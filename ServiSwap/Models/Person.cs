@@ -19,8 +19,8 @@ public partial class Person
         StreetNumber = streetNumber;
         StreetName = streetName;
         City = city;
-        Latitude = latitude; // TODO: implement GeoCodage in CreateUser() method in PersonService later.
-        Longitude = longitude; // TODO: implement GeoCodage in CreateUser() method in PersonService later.
+        Latitude = latitude;
+        Longitude = longitude;
         services = [];
         servicesProvider = [];
         servicesRequester = [];

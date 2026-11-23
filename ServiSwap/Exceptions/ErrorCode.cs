@@ -17,5 +17,7 @@ public enum ErrorCode
     InvalidLastName,
     InvalidFirstName,
     NotEnoughCredits,
-    ServiceAlreadyRequested
+    ServiceAlreadyRequested,
+    UserAlreadyExist,
+    AddressNotFound
 }

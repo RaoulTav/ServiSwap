@@ -6,6 +6,13 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddDistributedMemoryCache();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient("Geocoding", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Geocoding:BaseUrl"] ?? "https://nominatim.openstreetmap.org/", UriKind.Absolute);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd(builder.Configuration["Geocoding:UserAgent"] ?? "ServiSwap/1.0 (development)");
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(20);
@@ -27,6 +34,7 @@ builder.Services.AddSingleton<IRequestedServiceDAL>(c => new RequestedServiceDAL
 builder.Services.AddSingleton<PersonService>();
 builder.Services.AddSingleton<HomePageService>();
 builder.Services.AddSingleton<ServiceManager>();
+builder.Services.AddSingleton<IGeocodingService, NominatimGeocodingService>();
 
 WebApplication app = builder.Build();
 
