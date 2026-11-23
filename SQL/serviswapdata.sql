@@ -66,25 +66,25 @@ VALUES
     ('Initiation à la photographie', 'Découverte des bases de la photographie et conseils pour améliorer ses prises de vue.', '2026-08-11', 2, 10), 
     ('Atelier création manuelle', 'Accompagnement dans la réalisation de petits projets créatifs et travaux manuels.', '2026-08-13', 2, 10);
     
-INSERT INTO RequestedServices (dateOfRequest, state, requesterId, serviceId)
+INSERT INTO RequestedServices (dateOfRequest, state, reportedHours, requesterId, serviceId)
 VALUES
     -- Person 1 demande des services de Person 2 et Person 3
-    ('2026-08-14', 1, 1, 3), ('2026-08-15', 1, 1, 5), 
+    ('2026-08-14', 1, 0, 1, 3), ('2026-08-15', 1, 0, 1, 5),
     -- Person 2 demande des services de Person 3 et Person 4
-    ('2026-08-14', 1, 2, 5), ('2026-08-16', 1, 2, 7), 
+    ('2026-08-14', 1, 0, 2, 5), ('2026-08-16', 1, 0, 2, 7),
     -- Person 3 demande des services de Person 4 et Person 5
-    ('2026-08-15', 1, 3, 7), ('2026-08-17', 1, 3, 9), 
+    ('2026-08-15', 1, 0, 3, 7), ('2026-08-17', 1, 0, 3, 9),
     -- Person 4 demande des services de Person 5 et Person 6
-    ('2026-08-16', 1, 4, 9), ('2026-08-18', 1, 4, 11), 
+    ('2026-08-16', 1, 0, 4, 9), ('2026-08-18', 1, 0, 4, 11),
     -- Person 5 demande des services de Person 6 et Person 7
-    ('2026-08-17', 1, 5, 11), ('2026-08-18', 1, 5, 13), 
+    ('2026-08-17', 1, 0, 5, 11), ('2026-08-18', 1, 0, 5, 13),
     -- Person 6 demande des services de Person 7 et Person 8
-    ('2026-08-18', 1, 6, 13), ('2026-08-19', 1, 6, 15), 
+    ('2026-08-18', 1, 0, 6, 13), ('2026-08-19', 1, 0, 6, 15),
     -- Person 7 demande des services de Person 8 et Person 9
-    ('2026-08-18', 1, 7, 15), ('2026-08-19', 1, 7, 17), 
+    ('2026-08-18', 1, 0, 7, 15), ('2026-08-19', 1, 0, 7, 17),
     -- Person 8 demande des services de Person 9 et Person 10
-    ('2026-08-19', 1, 8, 17), ('2026-08-20', 1, 8, 19), 
+    ('2026-08-19', 1, 0, 8, 17), ('2026-08-20', 1, 0, 8, 19),
     -- Person 9 demande des services de Person 10 et Person 1
-    ('2026-08-19', 1, 9, 19), ('2026-08-20', 1, 9, 1), 
+    ('2026-08-19', 1, 0, 9, 19), ('2026-08-20', 1, 0, 9, 1),
     -- Person 10 demande des services de Person 1 et Person 2
-    ('2026-08-20', 1, 10, 1), ('2026-08-21', 1, 10, 3);
+    ('2026-08-20', 1, 0, 10, 1), ('2026-08-21', 1, 0, 10, 3);

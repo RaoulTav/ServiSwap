@@ -20,14 +20,15 @@ namespace ServiSwap.DAL
             connection.Open();
 
             string query = """
-                INSERT INTO RequestedServices (dateOfRequest, state, requesterId, serviceId) 
-                VALUES (@dateOfRequest, @state, @requesterId, @serviceId)
+                INSERT INTO RequestedServices (dateOfRequest, state, reportedHours, requesterId, serviceId)
+                VALUES (@dateOfRequest, @state, @reportedHours, @requesterId, @serviceId)
             """;
 
             using MySqlCommand command = new(query, connection);
 
             command.Parameters.AddWithValue("@dateOfRequest", requestedService.DateOfRequest);
             command.Parameters.AddWithValue("@state", (int)requestedService.State);
+            command.Parameters.AddWithValue("@reportedHours", requestedService.ReportedHours);
             command.Parameters.AddWithValue("@requesterId", requestedService.Requester.PersonId);
             command.Parameters.AddWithValue("@serviceId", requestedService.Service.ServiceId);
 
@@ -45,7 +46,7 @@ namespace ServiSwap.DAL
             connection.Open();
 
             string query = """
-                SELECT rs.dateOfRequest, rs.state, 
+                SELECT rs.dateOfRequest, rs.state, rs.reportedHours,
                     r.personId AS rId, r.username AS rUsername, r.password AS rPassword, r.lastName AS rLastName, r.firstName AS rFirstName, 
                         r.email AS rEmail, r.creditHours AS rCreditHours, r.latitude AS rLatitude, r.longitude AS rLongitude, 
                     ra.streetNumber AS raStreetNumber, ra.streetName AS raStreetName, ra.city AS raCity, 
@@ -113,7 +114,8 @@ namespace ServiSwap.DAL
                     reader.GetDateOnly("dateOfRequest"),
                     (RequestedServiceState)reader.GetInt32("state"),
                     requester,
-                    service
+                    service,
+                    reader.GetInt32("reportedHours")
                 ) { RequestedServiceId = requestedServiceId };
             }
 
@@ -130,7 +132,7 @@ namespace ServiSwap.DAL
             connection.Open();
 
             string query = """
-                SELECT rs.reqServiceId, rs.dateOfRequest, rs.state, 
+                SELECT rs.reqServiceId, rs.dateOfRequest, rs.state, rs.reportedHours,
                     s.serviceId, s.serviceName, s.serviceDescription, s.dateOfPublication, 
                     c.categoryId, c.categoryName, 
                     p.personId AS pId, p.username AS pUsername, p.password AS pPassword, p.lastName AS pLastName, p.firstName AS pFirstName, 
@@ -193,7 +195,8 @@ namespace ServiSwap.DAL
                     reader.GetDateOnly("dateOfRequest"),
                     (RequestedServiceState)reader.GetInt32("state"),
                     requester,
-                    service
+                    service,
+                    reader.GetInt32("reportedHours")
                 ) { RequestedServiceId = reader.GetInt32("reqServiceId") };
             }
         }
@@ -209,7 +212,7 @@ namespace ServiSwap.DAL
             connection.Open();
 
             string query = """
-                SELECT rs.reqServiceId, rs.dateOfRequest, rs.state,
+                SELECT rs.reqServiceId, rs.dateOfRequest, rs.state, rs.reportedHours,
                     s.serviceId, s.serviceName, s.serviceDescription, s.dateOfPublication,
                     c.categoryId, c.categoryName,
                     r.personId AS rId, r.username AS rUsername, r.password AS rPassword, r.lastName AS rLastName, r.firstName AS rFirstName,
@@ -277,7 +280,8 @@ namespace ServiSwap.DAL
                     reader.GetDateOnly("dateOfRequest"),
                     (RequestedServiceState)reader.GetInt32("state"),
                     requester,
-                    service
+                    service,
+                    reader.GetInt32("reportedHours")
                 ) { RequestedServiceId = reader.GetInt32("reqServiceId") };
             }
         }

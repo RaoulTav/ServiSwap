@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using ServiSwap.Exceptions;
 
@@ -5,10 +6,11 @@ namespace ServiSwap.Models;
 
 public class RequestedService
 {
-    public RequestedService(DateOnly dateOfRequest, RequestedServiceState state, Person requester, Service service)
+    public RequestedService(DateOnly dateOfRequest, RequestedServiceState state, Person requester, Service service, int reportedHours = 0)
     {
         DateOfRequest = dateOfRequest;
         State = state;
+        ReportedHours = reportedHours;
         Requester = requester;
         Service = service;
         Provider = service.Provider;
@@ -39,6 +41,17 @@ public class RequestedService
     public DateOnly DateOfRequest { get; set; }
 
     public RequestedServiceState State { get; private set; }
+    
+    [Display(Name = "Heures prestées")]
+    public int ReportedHours
+    {
+        get;
+        set
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(value);
+            field = CanReportHours(State) ? value : 0;
+        }
+    }
 
     public void ChangeState(RequestedServiceState newState)
     {
@@ -58,7 +71,14 @@ public class RequestedService
         } 
 
         State = newState;
+        if (!CanReportHours(State))
+        {
+            ReportedHours = 0;
+        }
     }
+
+    private static bool CanReportHours(RequestedServiceState state)
+        => state is RequestedServiceState.Completed or RequestedServiceState.Validated;
 
     public Person Requester { get; private set { ArgumentNullException.ThrowIfNull(value); field = value; } }
 

@@ -1,5 +1,9 @@
 ﻿@model List<RequestedService>
 
+	@{
+    ViewData["Title"] = "Services donnés";
+}
+
 <section id="works" class="works">
 	<div class="container">
 		<div class="works-content">
@@ -8,8 +12,8 @@
 				{
 					@foreach (RequestedService provS in Model)
 					{
-						<div class="col-md-4 col-sm-6 rpservice @* @(provS.ReportedHours != 0 ? "disabled" : "") *@">
-							<div class="single-how-works rpservice @* @(provS.ReportedHours != 0 ? "disabled" : "") *@">
+						<div class="col-md-4 col-sm-6 rpservice @(provS.State.Equals(RequestedServiceState.Pending) ? "disabled" : "")">
+							<div class="single-how-works rpservice @(provS.State.Equals(RequestedServiceState.Pending) ? "disabled" : "")">
 								<h2>
 									<a 
 										asp-controller="Service" 
@@ -24,10 +28,10 @@
 								<p><strong>Date de la demande:</strong> @provS.DateOfRequest</p>
 								<p><strong>Lieu:</strong> @provS.Provider.City</p>
 								<p style="white-space: pre-wrap;"><strong>Email du demandeur: </strong>@provS.Requester.Email</p>
-								@* @if (provS.ReportedHours == 0)
+								@if (provS.State.Equals(RequestedServiceState.Pending))
 								{
 									<form class="custom-form" asp-controller="Service" asp-action="ReportHours" method="post">
-										<input asp-for="@provS.ReqServiceId" hidden />
+										<input asp-for="@provS.RequestedServiceId" hidden />
 										<label class="custom-label" asp-for="@provS.ReportedHours"></label>
 										<input asp-for="@provS.ReportedHours" required />
 										<input class="submit-button" type="submit" value="Envoyer" />
@@ -35,8 +39,10 @@
 								}
 								else
 								{
-									<p class="requestservice" style="white-space: pre-wrap;">Le demandeur n'a pas encore confirmé le nombre d'heures que vous avez encodé</p>
-								} *@
+									<p class="requestservice" style="white-space: pre-wrap;">
+										Le demandeur n'a pas encore confirmé le nombre d'heures que vous avez encodé
+									</p>
+								}
 							</div>
 						</div>
 					}
