@@ -1,0 +1,58 @@
+@model ServiSwap.Models.Service
+
+@{
+    string? successMessage = TempData["SuccessMessage"] as string;
+    string? errorMessage = TempData["ErrorMessage"] as string;
+    string? message = errorMessage ?? successMessage;
+    bool isError = errorMessage is not null;
+    ViewData["Title"] = "Détails du service";
+}
+
+<section id="works" class="serviceD">
+    <div class="works custom">
+        <div class="container">
+            <div class="row">
+                <div class="serviceDetails">
+                    <div class="single-how-works custom">
+                        <h2><strong>Service:</strong> @Model.ServiceName</h2>
+                        <h3><strong>Fournisseur:</strong> @Model.Provider.Username</h3>
+                        <p><strong>Catégorie:</strong> @Model.Category.CategoryName</p>
+                        <p><strong>Lieu:</strong> @Model.Provider.City</p>
+                        <p><strong>Date de publication:</strong> @Model.DateOfPublication</p>
+                        <p style="overflow: visible; text-overflow: initial; white-space: normal;">
+                            <strong>Description:<br /></strong>@Model.ServiceDescription
+                        </p>
+                        <p><strong>Email du fournisseur: </strong>@Model.Provider.Email</p>
+                        <form asp-controller="Person" asp-action="RequestService" method="post">
+                            <input asp-for="@Model.ServiceId" hidden />
+                            <input type="submit" value="Demander le service" class="welcome-hero-btn how-work-btn request" />
+                        </form>
+                        
+                        @if (message is not null)
+                        {
+                            <div id="customMessageBox" class="message-box @(isError ? "message-box-error" : "message-box-success")" role="alert">
+                                <div class="message-content">
+                                    <p>@message</p>
+                                    <button id="closeButton" type="button">OK</button>
+                                </div>
+                            </div>
+
+                            <script>
+                                const messageBox = document.getElementById("customMessageBox");
+                                const closeButton = document.getElementById("closeButton");
+
+                                closeButton.addEventListener("click", () => {
+                                    messageBox.style.display = "none";
+                                });
+
+                                window.addEventListener("load", () => {
+                                    messageBox.style.display = "block";
+                                });
+                            </script>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

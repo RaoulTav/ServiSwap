@@ -1,0 +1,23 @@
+@model ServiSwap.ViewModels.AuthenticateViewModel
+
+@{
+    ViewData["Title"] = "Connexion";
+}
+
+<div class="new-login-form-container">
+    <form asp-controller="Person" asp-action="Login" method="post">
+        <label asp-for="Username"></label>
+        <input asp-for="Username" /><br />
+        <span asp-validation-for="Username" class="login-field-validation-error"></span>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" /><br />
+        <span asp-validation-for="Password" class="login-field-validation-error"></span>
+        <button type="submit" class="login-btn">Se connecter</button>
+    </form>
+    @if (ViewBag.NoAccount != null)
+    {
+        <div class="field-validation-error">
+            @ViewBag.NoAccount
+        </div>
+    }
+</div>

@@ -1,24 +1,50 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ServiSwap.Exceptions;
+using ServiSwap.Extensions;
 using ServiSwap.Models;
+using ServiSwap.Services;
+using ServiSwap.ViewModels;
 
 namespace ServiSwap.Controllers;
 
-public class HomeController : Controller
+public class HomeController(HomePageService homePageService, ServiceManager serviceManager) : Controller
 {
+    private readonly HomePageService homePageService = homePageService;
+    private readonly ServiceManager serviceManager = serviceManager;
+
     public IActionResult Index()
     {
-        return View();
+        HomePageData data = homePageService.GetHomePageData();
+
+        HomePageViewModel homePageViewModel = new()
+        {
+            Categories = data.Categories,
+            Services = data.Services
+        };
+
+        return View(homePageViewModel);
     }
 
-    public IActionResult Privacy()
+    [HttpGet]
+    public IActionResult SearchForServices([Bind(Prefix = "Search")] ServiceSearchViewModel search)
     {
-        return View();
-    }
+        int? personId = HttpContext.Session.GetPersonId();
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        try
+        {
+            List<Service> services = ModelState.IsValid ? serviceManager.SearchServices(search.CategoryId, personId, search.Distance) : [];
+
+            return View("Index", new HomePageViewModel
+            {
+                Search = search,
+                Categories = homePageService.GetCategories(),
+                Services = services
+            });
+        } catch (EntityNotFoundException ex) when (ex.EntityName == "Person")
+        {
+            HttpContext.Session.ClearAuthenticatedPerson();
+
+            return RedirectToAction("Login", "Person");
+        }
     }
 }
