@@ -1141,7 +1141,7 @@ nav.navbar.bootsnav .navbar-toggle i
     font-weight: bold;
 }
 
-.register-form-container input[type="text"], .register-form-container input[type="password"] 
+.register-form-container input[type="text"], .register-form-container input[type="password"], .register-form-container input[type="email"] 
 {
     width: calc(100% - 20px);
     padding: 10px;

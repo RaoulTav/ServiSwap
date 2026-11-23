@@ -49,6 +49,11 @@ public class PersonController(PersonService personService) : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    public IActionResult Register()
+    {
+        return View();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult RequestService(int serviceId)
