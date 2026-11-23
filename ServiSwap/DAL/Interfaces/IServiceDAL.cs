@@ -13,6 +13,6 @@ namespace ServiSwap.DAL.Interfaces
         public List<Service> SearchByCategoryAndOrDistance(double? latitude = null, double? longitude = null, int? categoryId = null, 
             double? distance = null);
 
-        public List<Service> FindAllByProvider(Person provider);
+        public void FindAllByProvider(Person provider);
     }
 }

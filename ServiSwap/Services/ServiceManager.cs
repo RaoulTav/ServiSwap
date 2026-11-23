@@ -80,4 +80,13 @@ public class ServiceManager(IPersonDAL personDAL, IServiceDAL serviceDAL, IReque
 
         return serviceRequested.Requester;
     }
+
+    public List<Service> GetServicesByProvider(int personId)
+    {
+        Person provider = personDAL.FindById(personId) ?? throw new EntityNotFoundException("Provider", personId);
+
+        serviceDAL.FindAllByProvider(provider);
+
+        return (List<Service>)provider.Services;
+    }
 }

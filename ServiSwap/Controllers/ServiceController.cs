@@ -131,4 +131,28 @@ public class ServiceController(ServiceManager serviceManager) : Controller
 
         return RedirectToAction("RService", "Person");
     }
+
+    [HttpGet]
+    public IActionResult MyServices()
+    {
+        int? personId = HttpContext.Session.GetPersonId();
+
+        if (personId is not int authenticatedPersonId)
+        {
+            return RedirectToAction("Login", "Person");
+        }
+
+        try
+        {
+            List<Service> services = serviceManager.GetServicesByProvider(authenticatedPersonId);
+
+            return View(services);
+        } 
+        catch (EntityNotFoundException ex) when (ex.EntityName == "Provider")
+        {
+            HttpContext.Session.ClearAuthenticatedPerson();
+
+            return RedirectToAction("Login", "Person");
+        }
+    }
 }

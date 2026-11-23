@@ -272,9 +272,8 @@ namespace ServiSwap.DAL
             return services;
         }
 
-        public List<Service> FindAllByProvider(Person provider)
+        public void FindAllByProvider(Person provider)
         {
-            List<Service> services = [];
             Dictionary<int, Category> categories = [];
 
             using MySqlConnection connection = new(connectionString);
@@ -307,18 +306,14 @@ namespace ServiSwap.DAL
                     categories.Add(categoryId, category);
                 }
 
-                Service service = new(
+                _ = new Service(
                     reader.GetString("serviceName"),
                     reader.GetString("serviceDescription"),
                     reader.GetDateOnly("dateOfPublication"),
                     category,
                     provider
                 ) { ServiceId = reader.GetInt32("serviceId") };
-
-                services.Add(service);
             }
-
-            return services;
         } 
     }
 }
