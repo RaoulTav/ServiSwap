@@ -271,5 +271,54 @@ namespace ServiSwap.DAL
 
             return services;
         }
+
+        public List<Service> FindAllByProvider(Person provider)
+        {
+            List<Service> services = [];
+            Dictionary<int, Category> categories = [];
+
+            using MySqlConnection connection = new(connectionString);
+
+            connection.Open();
+
+            string query = """
+                SELECT s.serviceId, s.serviceName, s.serviceDescription, s.dateOfPublication, 
+                    c.categoryId, c.categoryName 
+                FROM Services s 
+                    INNER JOIN Categories c ON s.categoryId = c.categoryId 
+                    INNER JOIN People p ON s.providerId = p.personId
+                WHERE p.personId = @providerId
+            """;
+
+            using MySqlCommand command = new(query, connection);
+
+            command.Parameters.AddWithValue("@providerId", provider.PersonId);
+
+            using MySqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                int categoryId = reader.GetInt32("categoryId");
+
+                if (!categories.TryGetValue(categoryId, out Category? category))
+                {
+                    category = new(categoryId, reader.GetString("categoryName"));
+
+                    categories.Add(categoryId, category);
+                }
+
+                Service service = new(
+                    reader.GetString("serviceName"),
+                    reader.GetString("serviceDescription"),
+                    reader.GetDateOnly("dateOfPublication"),
+                    category,
+                    provider
+                ) { ServiceId = reader.GetInt32("serviceId") };
+
+                services.Add(service);
+            }
+
+            return services;
+        } 
     }
 }
