@@ -1337,6 +1337,12 @@ col-md-4 col-sm-6.rpservice p, .single-how-works.rpservice p
     overflow: visible;
 }
 
+.single-how-works.rpservice p.requestservice
+{
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 .single-how-works.rpservice 
 {
     height: 600px;

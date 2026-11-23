@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ServiSwap.Exceptions;
+using ServiSwap.Extensions;
 using ServiSwap.Models;
 using ServiSwap.Services;
 using ServiSwap.ViewModels;
@@ -30,9 +31,7 @@ public class PersonController(PersonService personService) : Controller
                 return View();
             }
 
-            HttpContext.Session.SetInt32("PersonId", person.PersonId);
-            HttpContext.Session.SetString("Username", person.Username);
-            HttpContext.Session.SetInt32("CreditHours", person.CreditHours);
+            HttpContext.Session.SetAuthenticatedPerson(person);
 
             return RedirectToAction("Index", "Home");
         }
@@ -44,7 +43,7 @@ public class PersonController(PersonService personService) : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Logout()
     {
-        HttpContext.Session.Clear();
+        HttpContext.Session.ClearAuthenticatedPerson();
 
         return RedirectToAction("Index", "Home");
     }
@@ -73,9 +72,7 @@ public class PersonController(PersonService personService) : Controller
                     register.City
                 );
 
-                HttpContext.Session.SetInt32("PersonId", person.PersonId);
-                HttpContext.Session.SetString("Username", person.Username);
-                HttpContext.Session.SetInt32("CreditHours", person.CreditHours);
+                HttpContext.Session.SetAuthenticatedPerson(person);
 
                 return RedirectToAction("Index", "Home");
             } catch (BusinessException ex)
@@ -92,17 +89,59 @@ public class PersonController(PersonService personService) : Controller
         return View(register);
     }
 
+    [HttpGet]
+    public IActionResult PService()
+    {
+        int? personId = HttpContext.Session.GetPersonId();
+
+        if (personId is not int authenticatedPersonId) return RedirectToAction(nameof(Login));
+
+        try
+        {
+            Person provider = personService.GetServicesAsProvider(authenticatedPersonId);
+
+            return View(provider.ServicesProvider);
+        }
+        catch (EntityNotFoundException ex) when (ex.EntityName == "Person")
+        {
+            HttpContext.Session.ClearAuthenticatedPerson();
+
+            return RedirectToAction(nameof(Login));
+        }
+    }
+
+    [HttpGet]
+    public IActionResult RService()
+    {
+        int? personId = HttpContext.Session.GetPersonId();
+
+        if (personId is not int authenticatedPersonId) return RedirectToAction(nameof(Login));
+
+        try
+        {
+            Person requester = personService.GetServicesAsRequester(authenticatedPersonId);
+
+            return View(requester.ServicesRequester);
+        }
+        catch (EntityNotFoundException ex) when (ex.EntityName == "Person")
+        {
+            HttpContext.Session.ClearAuthenticatedPerson();
+
+            return RedirectToAction(nameof(Login));
+        }
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult RequestService(int serviceId)
     {
-        int? personId = HttpContext.Session.GetInt32("PersonId");
+        int? personId = HttpContext.Session.GetPersonId();
 
-        if (personId is null) return RedirectToAction("Login", "Person");
+        if (personId is not int authenticatedPersonId) return RedirectToAction(nameof(Login));
     
         try
         {
-            personService.RequestService(personId.Value, serviceId);
+            personService.RequestService(authenticatedPersonId, serviceId);
             TempData["SuccessMessage"] = "La demande de service a été envoyée.";
 
             return RedirectToAction("ServiceDetails", "Service", new { serviceId });
@@ -123,11 +162,11 @@ public class PersonController(PersonService personService) : Controller
         {
             return NotFound();
         }
-        catch (EntityNotFoundException)
+        catch (EntityNotFoundException ex) when (ex.EntityName == "Requester")
         {
-            HttpContext.Session.Remove("PersonId");
-            
-            return RedirectToAction("Login", "Person"); 
+            HttpContext.Session.ClearAuthenticatedPerson();
+
+            return RedirectToAction(nameof(Login));
         }
     }
 }

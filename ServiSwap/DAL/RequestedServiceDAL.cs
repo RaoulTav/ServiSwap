@@ -1,5 +1,6 @@
 using MySqlConnector;
 using ServiSwap.DAL.Interfaces;
+using ServiSwap.Exceptions;
 using ServiSwap.Models;
 
 namespace ServiSwap.DAL
@@ -8,9 +9,121 @@ namespace ServiSwap.DAL
     {
         private readonly string connectionString = connectionString;
 
-        public bool Complete(RequestedService requestedService)
+        public void ReportHours(RequestedService requestedService)
         {
-            throw new NotImplementedException();
+            using MySqlConnection connection = new(connectionString);
+
+            connection.Open();
+
+            string query = """
+                UPDATE RequestedServices
+                SET state = @state, reportedHours = @reportedHours
+                WHERE reqServiceId = @requestedServiceId
+            """;
+
+            using MySqlCommand command = new(query, connection);
+
+            command.Parameters.AddWithValue("@state", (int)requestedService.State);
+            command.Parameters.AddWithValue("@reportedHours", requestedService.ReportedHours);
+            command.Parameters.AddWithValue("@requestedServiceId", requestedService.RequestedServiceId);
+
+            command.ExecuteNonQuery();
+        }
+
+        public void ConfirmHours(RequestedService requestedService)
+        {
+            ArgumentNullException.ThrowIfNull(requestedService);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(requestedService.RequestedServiceId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(requestedService.ReportedHours);
+
+            if (requestedService.State != RequestedServiceState.Validated)
+            {
+                throw new BusinessException(
+                    ErrorCode.InvalidStateTransaction,
+                    "Only a validated requested service can be confirmed.");
+            }
+
+            using MySqlConnection connection = new(connectionString);
+            connection.Open();
+
+            using MySqlTransaction transaction = connection.BeginTransaction();
+
+            try
+            {
+                string stateQuery = """
+                    UPDATE RequestedServices
+                    SET state = @validatedState
+                    WHERE reqServiceId = @requestedServiceId
+                        AND requesterId = @requesterId
+                        AND state = @completedState
+                """;
+
+                using MySqlCommand stateCommand = new(stateQuery, connection, transaction);
+                stateCommand.Parameters.AddWithValue("@validatedState", (int)RequestedServiceState.Validated);
+                stateCommand.Parameters.AddWithValue("@requestedServiceId", requestedService.RequestedServiceId);
+                stateCommand.Parameters.AddWithValue("@requesterId", requestedService.Requester.PersonId);
+                stateCommand.Parameters.AddWithValue("@completedState", (int)RequestedServiceState.Completed);
+
+                if (stateCommand.ExecuteNonQuery() != 1)
+                {
+                    throw new BusinessException(ErrorCode.InvalidStateTransaction, "The requested service cannot be validated at this state.");
+                }
+
+                string debitQuery = """
+                    UPDATE People
+                    SET creditHours = creditHours - @reportedHours
+                    WHERE personId = @requesterId AND creditHours >= @reportedHours
+                """;
+
+                using MySqlCommand debitCommand = new(debitQuery, connection, transaction);
+                debitCommand.Parameters.AddWithValue("@reportedHours", requestedService.ReportedHours);
+                debitCommand.Parameters.AddWithValue("@requesterId", requestedService.Requester.PersonId);
+
+                if (debitCommand.ExecuteNonQuery() != 1)
+                {
+                    throw new BusinessException(ErrorCode.NotEnoughCredits, "The requester does not have enough credits.");
+                }
+
+                string creditQuery = """
+                    UPDATE People
+                    SET creditHours = creditHours + @reportedHours
+                    WHERE personId = @providerId
+                """;
+
+                using MySqlCommand creditCommand = new(creditQuery, connection, transaction);
+                creditCommand.Parameters.AddWithValue("@reportedHours", requestedService.ReportedHours);
+                creditCommand.Parameters.AddWithValue("@providerId", requestedService.Provider.PersonId);
+
+                if (creditCommand.ExecuteNonQuery() != 1)
+                {
+                    throw new EntityNotFoundException("Person", requestedService.Provider.PersonId);
+                }
+
+                string deleteQuery = """
+                    DELETE FROM RequestedServices
+                    WHERE reqServiceId = @requestedServiceId
+                        AND state = @validatedState
+                """;
+
+                using MySqlCommand deleteCommand = new(deleteQuery, connection, transaction);
+                deleteCommand.Parameters.AddWithValue("@requestedServiceId", requestedService.RequestedServiceId);
+                deleteCommand.Parameters.AddWithValue("@validatedState", (int)RequestedServiceState.Validated);
+
+                if (deleteCommand.ExecuteNonQuery() != 1)
+                {
+                    throw new BusinessException(
+                        ErrorCode.InvalidStateTransaction,
+                        "Only a validated requested service can be deleted.");
+                }
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+
+                throw;
+            }
         }
 
         public void CreateRequestedService(RequestedService requestedService)
@@ -20,14 +133,15 @@ namespace ServiSwap.DAL
             connection.Open();
 
             string query = """
-                INSERT INTO RequestedServices (dateOfRequest, state, requesterId, serviceId) 
-                VALUES (@dateOfRequest, @state, @requesterId, @serviceId)
+                INSERT INTO RequestedServices (dateOfRequest, state, reportedHours, requesterId, serviceId)
+                VALUES (@dateOfRequest, @state, @reportedHours, @requesterId, @serviceId)
             """;
 
             using MySqlCommand command = new(query, connection);
 
             command.Parameters.AddWithValue("@dateOfRequest", requestedService.DateOfRequest);
             command.Parameters.AddWithValue("@state", (int)requestedService.State);
+            command.Parameters.AddWithValue("@reportedHours", requestedService.ReportedHours);
             command.Parameters.AddWithValue("@requesterId", requestedService.Requester.PersonId);
             command.Parameters.AddWithValue("@serviceId", requestedService.Service.ServiceId);
 
@@ -45,7 +159,7 @@ namespace ServiSwap.DAL
             connection.Open();
 
             string query = """
-                SELECT rs.dateOfRequest, rs.state, 
+                SELECT rs.dateOfRequest, rs.state, rs.reportedHours,
                     r.personId AS rId, r.username AS rUsername, r.password AS rPassword, r.lastName AS rLastName, r.firstName AS rFirstName, 
                         r.email AS rEmail, r.creditHours AS rCreditHours, r.latitude AS rLatitude, r.longitude AS rLongitude, 
                     ra.streetNumber AS raStreetNumber, ra.streetName AS raStreetName, ra.city AS raCity, 
@@ -113,7 +227,8 @@ namespace ServiSwap.DAL
                     reader.GetDateOnly("dateOfRequest"),
                     (RequestedServiceState)reader.GetInt32("state"),
                     requester,
-                    service
+                    service,
+                    reader.GetInt32("reportedHours")
                 ) { RequestedServiceId = requestedServiceId };
             }
 
@@ -130,7 +245,7 @@ namespace ServiSwap.DAL
             connection.Open();
 
             string query = """
-                SELECT rs.reqServiceId, rs.dateOfRequest, rs.state, 
+                SELECT rs.reqServiceId, rs.dateOfRequest, rs.state, rs.reportedHours,
                     s.serviceId, s.serviceName, s.serviceDescription, s.dateOfPublication, 
                     c.categoryId, c.categoryName, 
                     p.personId AS pId, p.username AS pUsername, p.password AS pPassword, p.lastName AS pLastName, p.firstName AS pFirstName, 
@@ -193,7 +308,93 @@ namespace ServiSwap.DAL
                     reader.GetDateOnly("dateOfRequest"),
                     (RequestedServiceState)reader.GetInt32("state"),
                     requester,
-                    service
+                    service,
+                    reader.GetInt32("reportedHours")
+                ) { RequestedServiceId = reader.GetInt32("reqServiceId") };
+            }
+        }
+
+        public void FindAllByProvider(Person provider)
+        {
+            Dictionary<int, Category> categories = [];
+            Dictionary<int, Person> requesters = [];
+            Dictionary<int, Service> services = [];
+
+            using MySqlConnection connection = new(connectionString);
+
+            connection.Open();
+
+            string query = """
+                SELECT rs.reqServiceId, rs.dateOfRequest, rs.state, rs.reportedHours,
+                    s.serviceId, s.serviceName, s.serviceDescription, s.dateOfPublication,
+                    c.categoryId, c.categoryName,
+                    r.personId AS rId, r.username AS rUsername, r.password AS rPassword, r.lastName AS rLastName, r.firstName AS rFirstName,
+                        r.email AS rEmail, r.creditHours AS rCreditHours, r.latitude AS rLatitude, r.longitude AS rLongitude,
+                    ra.streetNumber AS raStreetNumber, ra.streetName AS raStreetName, ra.city AS raCity
+                FROM RequestedServices rs
+                    INNER JOIN Services s ON rs.serviceId = s.serviceId
+                    INNER JOIN Categories c ON s.categoryId = c.categoryId
+                    INNER JOIN People r ON rs.requesterId = r.personId
+                    INNER JOIN Addresses ra ON r.addressId = ra.addressId
+                WHERE s.providerId = @providerId
+            """;
+
+            using MySqlCommand command = new(query, connection);
+
+            command.Parameters.AddWithValue("@providerId", provider.PersonId);
+
+            using MySqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                int categoryId = reader.GetInt32("categoryId");
+                if (!categories.TryGetValue(categoryId, out Category? category))
+                {
+                    category = new(categoryId, reader.GetString("categoryName"));
+                    categories.Add(categoryId, category);
+                }
+
+                int requesterId = reader.GetInt32("rId");
+                if (!requesters.TryGetValue(requesterId, out Person? requester))
+                {
+                    requester = new(
+                        reader.GetString("rUsername"),
+                        reader.GetString("rPassword"),
+                        reader.GetString("rLastName"),
+                        reader.GetString("rFirstName"),
+                        reader.GetString("rEmail"),
+                        reader.GetInt32("rCreditHours"),
+                        reader.GetString("raStreetNumber"),
+                        reader.GetString("raStreetName"),
+                        reader.GetString("raCity"),
+                        reader.GetDouble("rLatitude"),
+                        reader.GetDouble("rLongitude")
+                    ) { PersonId = requesterId };
+
+                    requesters.Add(requesterId, requester);
+                }
+
+                int serviceId = reader.GetInt32("serviceId");
+                if (!services.TryGetValue(serviceId, out Service? service))
+                {
+                    service = provider.Services.FirstOrDefault(existing => existing.ServiceId == serviceId)
+                        ?? new Service(
+                            reader.GetString("serviceName"),
+                            reader.GetString("serviceDescription"),
+                            reader.GetDateOnly("dateOfPublication"),
+                            category,
+                            provider)
+                        { ServiceId = serviceId };
+
+                    services.Add(serviceId, service);
+                }
+
+                _ = new RequestedService(
+                    reader.GetDateOnly("dateOfRequest"),
+                    (RequestedServiceState)reader.GetInt32("state"),
+                    requester,
+                    service,
+                    reader.GetInt32("reportedHours")
                 ) { RequestedServiceId = reader.GetInt32("reqServiceId") };
             }
         }

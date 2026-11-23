@@ -45,9 +45,12 @@ CREATE TABLE RequestedServices(
 	reqServiceId INT AUTO_INCREMENT PRIMARY KEY,
     dateOfRequest DATE NOT NULL,
     state INT NOT NULL,
+    reportedHours INT NOT NULL DEFAULT 0,
     requesterId INT NOT NULL,
     serviceId INT NOT NULL,
     CHECK (state BETWEEN 1 AND 5),
+    CHECK (reportedHours >= 0),
+    CHECK (state IN (4, 5) OR reportedHours = 0),
     FOREIGN KEY (requesterId) REFERENCES People(personId),
     FOREIGN KEY (serviceId) REFERENCES Services(serviceId)
 );
