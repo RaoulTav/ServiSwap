@@ -8,6 +8,11 @@ public class PersonController(PersonService personService) : Controller
 {
     private readonly PersonService personService = personService;
 
+    public IActionResult Login()
+    {
+        return View();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult RequestService(int serviceId)
