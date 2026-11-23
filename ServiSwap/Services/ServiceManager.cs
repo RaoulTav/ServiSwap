@@ -52,4 +52,32 @@ public class ServiceManager(IPersonDAL personDAL, IServiceDAL serviceDAL, IReque
         
         requestedServiceDAL.ReportHours(serviceProvided);
     }
+
+    public Person ConfirmHours(int personId, int reqServiceId)
+    {
+        Person requester = personDAL.FindById(personId) ?? throw new EntityNotFoundException("Person", personId);
+
+        RequestedService serviceRequested = requestedServiceDAL.FindById(reqServiceId)
+            ?? throw new EntityNotFoundException("ReqService", reqServiceId);
+
+        if (!serviceRequested.Requester.Equals(requester))
+        {
+            throw new BusinessException(ErrorCode.NotServiceRequester, "Only the requester of the requested service can confirm its hours.");
+        }
+
+        if (!serviceRequested.State.Equals(RequestedServiceState.Completed))
+        {
+            throw new BusinessException(ErrorCode.InvalidStateTransaction, "The requested service cannot be validated at this state.");
+        }
+
+        int reportedHours = serviceRequested.ReportedHours;
+
+        serviceRequested.Requester.Debit(reportedHours);
+        serviceRequested.Provider.Credit(reportedHours);
+        serviceRequested.ChangeState(RequestedServiceState.Validated);
+
+        requestedServiceDAL.ConfirmHours(serviceRequested);
+
+        return serviceRequested.Requester;
+    }
 }

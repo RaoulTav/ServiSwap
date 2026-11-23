@@ -49,7 +49,7 @@ CREATE TABLE RequestedServices(
     requesterId INT NOT NULL,
     serviceId INT NOT NULL,
     CHECK (state BETWEEN 1 AND 5),
-    CHECK (reportedHours > 0),
+    CHECK (reportedHours >= 0),
     CHECK (state IN (4, 5) OR reportedHours = 0),
     FOREIGN KEY (requesterId) REFERENCES People(personId),
     FOREIGN KEY (serviceId) REFERENCES Services(serviceId)

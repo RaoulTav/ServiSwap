@@ -10,6 +10,8 @@ namespace ServiSwap.DAL.Interfaces
 
         public void ReportHours(RequestedService requestedService);
 
+        public void ConfirmHours(RequestedService requestedService);
+
         public void FindAllByRequester(Person requester);
 
         public void FindAllByProvider(Person provider);

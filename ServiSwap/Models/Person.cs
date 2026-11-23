@@ -243,6 +243,24 @@ public partial class Person
 
     public bool HasEnoughCredits(int hours = 1) => CreditHours >= hours;
 
+    public void Debit(int hours)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hours);
+
+        if (!HasEnoughCredits(hours))
+        {
+            throw new BusinessException(ErrorCode.NotEnoughCredits, "Person does not have enough credits.");
+        }
+
+        CreditHours -= hours;
+    }
+
+    public void Credit(int hours)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hours);
+        CreditHours = checked(CreditHours + hours);
+    }
+
     public bool Equals(Person? otherPerson)
     {
         if (otherPerson is null) return false;

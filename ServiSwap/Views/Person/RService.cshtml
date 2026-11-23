@@ -2,11 +2,21 @@
 
 @{
     ViewData["Title"] = "Services demandés";
+    string? successMessage = TempData["SuccessMessage"] as string;
+    string? errorMessage = TempData["ErrorMessage"] as string;
 }
 
 <section id="works" class="works">
 	<div class="container">
 		<div class="works-content">
+			@if (!string.IsNullOrWhiteSpace(successMessage))
+			{
+				<div class="alert alert-success" role="status">@successMessage</div>
+			}
+			@if (!string.IsNullOrWhiteSpace(errorMessage))
+			{
+				<div class="alert alert-danger" role="alert">@errorMessage</div>
+			}
 			<div class="row">
 				@if (Model.Count > 0)
 				{
@@ -31,7 +41,7 @@
 								@if (reqS.State.Equals(RequestedServiceState.Completed))
 								{
 									<form class="custom-form" asp-controller="Service" asp-action="ConfirmHours" method="post">
-										<input class="hidden-input" asp-for="@reqS.RequestedServiceId" hidden />
+										<input class="hidden-input" type="hidden" name="reqServiceId" value="@reqS.RequestedServiceId" />
 										<label class="custom-label" asp-for="@reqS.ReportedHours"></label>
 										<input class="readonly-input" asp-for="@reqS.ReportedHours" readonly />
 										<input class="submit-button" type="submit" value="Confirmer" />
@@ -49,33 +59,6 @@
 				{
 					<h4 class="no-service-message">Vous n'avez pour l'instant fait aucune demande de service.</h4>
 				}
-				@if (ViewBag.Confirmed != null)
-				{
-					<div id="customMessageBox" class="message-box">
-						<div class="message-content">
-							<p>@ViewBag.Confirmed</p>
-							<button id="closeButton">OK</button>
-						</div>
-					</div>
-				}
-				<script>
-					// Fonction pour afficher la boîte de dialogue
-					function showMessage() {
-						var messageBox = document.getElementById("customMessageBox");
-						messageBox.style.display = "block";
-					}
-
-					// Fonction pour masquer la boîte de dialogue lorsque l'utilisateur clique sur le bouton "OK"
-					document.getElementById("closeButton").addEventListener("click", function () {
-						var messageBox = document.getElementById("customMessageBox");
-						messageBox.style.display = "none";
-					});
-
-					// Appeler la fonction pour afficher la boîte de dialogue au chargement de la page
-					window.onload = function () {
-						showMessage();
-					};
-				</script>
 			</div>
 		</div>
 	</div>

@@ -20,5 +20,7 @@ public enum ErrorCode
     ServiceAlreadyRequested,
     UserAlreadyExist,
     AddressNotFound,
-    NotServiceProvider
+    NotServiceProvider,
+    NotServiceRequester,
+    InvalidStateTransaction
 }

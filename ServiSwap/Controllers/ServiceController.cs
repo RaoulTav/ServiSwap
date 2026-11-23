@@ -69,7 +69,7 @@ public class ServiceController(ServiceManager serviceManager) : Controller
         catch (EntityNotFoundException ex) when (ex.EntityName == "Person")
         {
             HttpContext.Session.ClearAuthenticatedPerson();
-            
+
             return RedirectToAction("Login", "Person");
         }
         catch (EntityNotFoundException ex) when (ex.EntityName == "ReqService")
@@ -78,5 +78,57 @@ public class ServiceController(ServiceManager serviceManager) : Controller
         }
 
         return RedirectToAction("PService", "Person");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult ConfirmHours(int? reqServiceId)
+    {
+        int? personId = HttpContext.Session.GetPersonId();
+
+        if (personId is not int authenticatedPersonId)
+        {
+            return RedirectToAction("Login", "Person");
+        }
+
+        if (reqServiceId is not int requestedServiceId || requestedServiceId <= 0)
+        {
+            TempData["ErrorMessage"] = "La demande de service est invalide.";
+
+            return RedirectToAction("RService", "Person");
+        }
+
+        try
+        {
+            Person requester = serviceManager.ConfirmHours(authenticatedPersonId, requestedServiceId);
+            HttpContext.Session.SetAuthenticatedPerson(requester);
+            TempData["SuccessMessage"] = "La prestation a été confirmée et les crédits ont été transférés.";
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            TempData["ErrorMessage"] = "Le nombre d'heures indiqué pour cette prestation est invalide.";
+        }
+        catch (BusinessException ex)
+        {
+            TempData["ErrorMessage"] = ex.ErrorCode switch
+            {
+                ErrorCode.NotServiceRequester => "Seul le demandeur de ce service peut confirmer les heures.",
+                ErrorCode.NotEnoughCredits => "Votre solde est insuffisant pour confirmer cette prestation.",
+                ErrorCode.InvalidStateTransaction => "Cette demande ne peut pas être confirmée dans son état actuel.",
+                _ => "La confirmation de la prestation n'a pas pu être effectuée."
+            };
+        }
+        catch (EntityNotFoundException ex) when (ex.EntityName == "Person")
+        {
+            HttpContext.Session.ClearAuthenticatedPerson();
+
+            return RedirectToAction("Login", "Person");
+        }
+        catch (EntityNotFoundException ex) when (ex.EntityName == "ReqService")
+        {
+            TempData["ErrorMessage"] = "Cette demande a déjà été confirmée ou n'existe plus.";
+        }
+
+        return RedirectToAction("RService", "Person");
     }
 }

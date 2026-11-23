@@ -1,5 +1,6 @@
 using MySqlConnector;
 using ServiSwap.DAL.Interfaces;
+using ServiSwap.Exceptions;
 using ServiSwap.Models;
 
 namespace ServiSwap.DAL
@@ -27,6 +28,102 @@ namespace ServiSwap.DAL
             command.Parameters.AddWithValue("@requestedServiceId", requestedService.RequestedServiceId);
 
             command.ExecuteNonQuery();
+        }
+
+        public void ConfirmHours(RequestedService requestedService)
+        {
+            ArgumentNullException.ThrowIfNull(requestedService);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(requestedService.RequestedServiceId);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(requestedService.ReportedHours);
+
+            if (requestedService.State != RequestedServiceState.Validated)
+            {
+                throw new BusinessException(
+                    ErrorCode.InvalidStateTransaction,
+                    "Only a validated requested service can be confirmed.");
+            }
+
+            using MySqlConnection connection = new(connectionString);
+            connection.Open();
+
+            using MySqlTransaction transaction = connection.BeginTransaction();
+
+            try
+            {
+                string stateQuery = """
+                    UPDATE RequestedServices
+                    SET state = @validatedState
+                    WHERE reqServiceId = @requestedServiceId
+                        AND requesterId = @requesterId
+                        AND state = @completedState
+                """;
+
+                using MySqlCommand stateCommand = new(stateQuery, connection, transaction);
+                stateCommand.Parameters.AddWithValue("@validatedState", (int)RequestedServiceState.Validated);
+                stateCommand.Parameters.AddWithValue("@requestedServiceId", requestedService.RequestedServiceId);
+                stateCommand.Parameters.AddWithValue("@requesterId", requestedService.Requester.PersonId);
+                stateCommand.Parameters.AddWithValue("@completedState", (int)RequestedServiceState.Completed);
+
+                if (stateCommand.ExecuteNonQuery() != 1)
+                {
+                    throw new BusinessException(ErrorCode.InvalidStateTransaction, "The requested service cannot be validated at this state.");
+                }
+
+                string debitQuery = """
+                    UPDATE People
+                    SET creditHours = creditHours - @reportedHours
+                    WHERE personId = @requesterId AND creditHours >= @reportedHours
+                """;
+
+                using MySqlCommand debitCommand = new(debitQuery, connection, transaction);
+                debitCommand.Parameters.AddWithValue("@reportedHours", requestedService.ReportedHours);
+                debitCommand.Parameters.AddWithValue("@requesterId", requestedService.Requester.PersonId);
+
+                if (debitCommand.ExecuteNonQuery() != 1)
+                {
+                    throw new BusinessException(ErrorCode.NotEnoughCredits, "The requester does not have enough credits.");
+                }
+
+                string creditQuery = """
+                    UPDATE People
+                    SET creditHours = creditHours + @reportedHours
+                    WHERE personId = @providerId
+                """;
+
+                using MySqlCommand creditCommand = new(creditQuery, connection, transaction);
+                creditCommand.Parameters.AddWithValue("@reportedHours", requestedService.ReportedHours);
+                creditCommand.Parameters.AddWithValue("@providerId", requestedService.Provider.PersonId);
+
+                if (creditCommand.ExecuteNonQuery() != 1)
+                {
+                    throw new EntityNotFoundException("Person", requestedService.Provider.PersonId);
+                }
+
+                string deleteQuery = """
+                    DELETE FROM RequestedServices
+                    WHERE reqServiceId = @requestedServiceId
+                        AND state = @validatedState
+                """;
+
+                using MySqlCommand deleteCommand = new(deleteQuery, connection, transaction);
+                deleteCommand.Parameters.AddWithValue("@requestedServiceId", requestedService.RequestedServiceId);
+                deleteCommand.Parameters.AddWithValue("@validatedState", (int)RequestedServiceState.Validated);
+
+                if (deleteCommand.ExecuteNonQuery() != 1)
+                {
+                    throw new BusinessException(
+                        ErrorCode.InvalidStateTransaction,
+                        "Only a validated requested service can be deleted.");
+                }
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+
+                throw;
+            }
         }
 
         public void CreateRequestedService(RequestedService requestedService)
