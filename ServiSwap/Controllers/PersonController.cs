@@ -110,6 +110,27 @@ public class PersonController(PersonService personService) : Controller
         }
     }
 
+    [HttpGet]
+    public IActionResult RService()
+    {
+        int? personId = HttpContext.Session.GetPersonId();
+
+        if (personId is not int authenticatedPersonId) return RedirectToAction(nameof(Login));
+
+        try
+        {
+            Person requester = personService.GetServicesAsRequester(authenticatedPersonId);
+
+            return View(requester.ServicesRequester);
+        }
+        catch (EntityNotFoundException ex) when (ex.EntityName == "Person")
+        {
+            HttpContext.Session.ClearAuthenticatedPerson();
+
+            return RedirectToAction(nameof(Login));
+        }
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult RequestService(int serviceId)

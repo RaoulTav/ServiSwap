@@ -1,0 +1,82 @@
+﻿@model List<RequestedService>
+
+@{
+    ViewData["Title"] = "Services demandés";
+}
+
+<section id="works" class="works">
+	<div class="container">
+		<div class="works-content">
+			<div class="row">
+				@if (Model.Count > 0)
+				{
+					@foreach (RequestedService reqS in Model)
+					{
+						<div class="col-md-4 col-sm-6 rpservice @(reqS.State.Equals(RequestedServiceState.Pending) ? "disabled" : "")">
+							<div class="single-how-works rpservice @(reqS.State.Equals(RequestedServiceState.Pending) ? "disabled" : "")">
+								<h2>
+									<a 
+										asp-controller="Service" 
+										asp-action="ServiceDetails" 
+										asp-route-serviceId="@reqS.Service.ServiceId" 
+										class="sTitle"
+									>
+										@reqS.Service.ServiceName
+									</a>
+								</h2>
+								<p><strong>Fournisseur: </strong>@reqS.Service.Provider.Username</p>
+								<p><strong>Date de la demande:</strong> @reqS.DateOfRequest</p>
+								<p><strong>Lieu:</strong> @reqS.Provider.City</p>
+								<p style ="white-space: pre-wrap;"><strong>Email du fournisseur: </strong>@reqS.Provider.Email</p>
+								@if (reqS.State.Equals(RequestedServiceState.Completed))
+								{
+									<form class="custom-form" asp-controller="Service" asp-action="ConfirmHours" method="post">
+										<input class="hidden-input" asp-for="@reqS.RequestedServiceId" hidden />
+										<label class="custom-label" asp-for="@reqS.ReportedHours"></label>
+										<input class="readonly-input" asp-for="@reqS.ReportedHours" readonly />
+										<input class="submit-button" type="submit" value="Confirmer" />
+									</form>
+								}
+								else
+								{
+									<p class="requestservice">Le fournisseur du service n'a pas encore donné le nombre d'heure de la prestation.</p>
+								}
+							</div>
+						</div>
+					}
+				}
+				else
+				{
+					<h4 class="no-service-message">Vous n'avez pour l'instant fait aucune demande de service.</h4>
+				}
+				@if (ViewBag.Confirmed != null)
+				{
+					<div id="customMessageBox" class="message-box">
+						<div class="message-content">
+							<p>@ViewBag.Confirmed</p>
+							<button id="closeButton">OK</button>
+						</div>
+					</div>
+				}
+				<script>
+					// Fonction pour afficher la boîte de dialogue
+					function showMessage() {
+						var messageBox = document.getElementById("customMessageBox");
+						messageBox.style.display = "block";
+					}
+
+					// Fonction pour masquer la boîte de dialogue lorsque l'utilisateur clique sur le bouton "OK"
+					document.getElementById("closeButton").addEventListener("click", function () {
+						var messageBox = document.getElementById("customMessageBox");
+						messageBox.style.display = "none";
+					});
+
+					// Appeler la fonction pour afficher la boîte de dialogue au chargement de la page
+					window.onload = function () {
+						showMessage();
+					};
+				</script>
+			</div>
+		</div>
+	</div>
+</section>
